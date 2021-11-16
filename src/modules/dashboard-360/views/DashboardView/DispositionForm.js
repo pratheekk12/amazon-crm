@@ -34,7 +34,7 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-const DispositionForm = ({ visibility, customer,getCustomerDetails,setCurrentrecord }) => {
+const DispositionForm = ({ visibility, customer,getCustomerDetails,setCurrentrecord,breakService }) => {
   const userData = useSelector(state => state.userData);
 
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -139,7 +139,7 @@ const DispositionForm = ({ visibility, customer,getCustomerDetails,setCurrentrec
 
       data.AgentObject_ID = localStorage.getItem('Agent_Object_ID')
    
-        handleBreak()
+        // handleBreak()
 
         const id = localStorage.getItem('Interaction_id')
         //console.log(id, "agentid")
@@ -168,7 +168,7 @@ const DispositionForm = ({ visibility, customer,getCustomerDetails,setCurrentrec
           
           });
           changeAgentStatus("AgentDisposed")
-          handleBreak()
+          breakService()
 
   }
 

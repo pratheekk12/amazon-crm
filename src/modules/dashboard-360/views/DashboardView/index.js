@@ -331,15 +331,10 @@ const Dashboard = ({
     const interval = setInterval(async () => {
       const GET_CURRENT_STATUS_BY_AGENT_SIP_ID = `${AGENT_SERVICE}/agents/${localStorage.getItem('Agent_Object_ID')}`;
       const getCurrentStatus = await axios.get(GET_CURRENT_STATUS_BY_AGENT_SIP_ID);
-      //console.log('getCurrentStatus', getCurrentStatus)
+      console.log('getCurrentStatus', getCurrentStatus)
       getAgentCallStatus(agentSipID)
 
-
     }, 3000);
-
-
-
-
 
   }, [])
 
