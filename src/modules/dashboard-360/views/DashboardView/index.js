@@ -536,6 +536,12 @@ const Dashboard = ({
                       ) : (<></>)}
                     </Card>
                   </Grid>
+                  <Grid item lg={6} md={6} xs={12}>
+                  <Card>
+                      <CardHeader title="Customer last Three Interactions" />
+                      <Divider />
+                    </Card>
+                  </Grid>
 
                 </Grid>
 

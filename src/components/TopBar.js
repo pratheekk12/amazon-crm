@@ -332,7 +332,11 @@ const TopBar = ({
             ) : (null)
           } */}
 
-
+        <Tooltip title="Logout">
+            <IconButton color="inherit" onClick={() => logoutUser()}>
+              <img src="/static/grassrootslogo.png" height="2px" width="175"/>
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Logout">
             <IconButton color="inherit" onClick={() => logoutUser()}>
               <ExitToAppIcon />
