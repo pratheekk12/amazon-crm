@@ -1,495 +1,127 @@
+import React, { useEffect, useRef, useState } from 'react';
 import { Field, Form, Formik } from 'formik';
-import React, { useRef, useState } from 'react';
-import { TextField, RadioGroup } from 'formik-material-ui';
-import { useEffect } from 'react';
-import {
-  AMI,AGENT_SERVICE
-} from 'src/modules/dashboard-360/utils/endpoints';
+import { TextField } from 'formik-material-ui';
+import { Autocomplete } from '@material-ui/lab';
 import {
   Button,
   FormControl,
-  FormControlLabel,
   Grid,
   makeStyles,
-  Radio, Checkbox, Typography
+  Snackbar
 } from '@material-ui/core';
-import * as yup from 'yup';
-import { Autocomplete } from '@material-ui/lab';
-import { Category } from '@material-ui/icons';
-const axios = require('axios');
+import { isEmpty, includes, map, find, difference, intersection } from 'lodash';
+import Axios from 'axios';
+import MuiAlert from '@material-ui/lab/Alert';
+import RenderQuestionByInputTypes from 'src/components/RenderQuestionByInputTypes';
+import {
+  getDependentQuestionsCodes,
+  // getDispositionFormQuestions3,
+  getDispositionFormQuestions5
+} from 'src/modules/dashboard-360/utils/util-functions';
+import { SAVE_DISPOSITION } from 'src/modules/dashboard-360/utils/endpoints';
+import { useSelector } from 'react-redux';
+import axios from 'axios'
+import {AGENT_SERVICE,AMI} from 'src/modules/dashboard-360/utils/endpoints'
+import {changeAgentStatus} from 'src/modules/dashboard-360/views/functions.js'
+
 const useStyle = makeStyles(() => ({
   fieldContainer: {
     width: '100%'
   }
 }));
-export default function DispositionForm(props) {
-  const [disable, setDisable] = useState(true)
-  const [takebreak, setTakebreak] = useState(false)
-  var APIENDPOINT = 'http://192.168.4.44:53003';
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /// addToQueue start //////////////////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  const onChangeTakebreak = (e) => setTakebreak(!takebreak)
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
-  useEffect(() => {
-    if (localStorage.getItem('callStatus') === 'AgentComplete') {
-      setDisable(false)
+const DispositionForm = ({ visibility, customer,getCustomerDetails,setCurrentrecord }) => {
+  const userData = useSelector(state => state.userData);
+
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
     }
-  }, [props])
-
-  function addToQueue(agentId, queue) {
-    var axios = require('axios');
-    var data = JSON.stringify({
-      agentId: agentId,
-      queue: queue,
-      action: 'QueueAdd'
-    });
-
-    var config = {
-      method: 'get',
-      url:
-        APIENDPOINT +
-        '/ami/actions/addq?Interface=' + agentId + '&Queue=' +
-        queue +
-        '',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    };
-
-    axios(config)
-      .then(function (response) { })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /// addToQueue end //////////////////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /// removeFromQueue start //////////////////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  function removeFromQueue(agentId, queue) {
-    var axios = require('axios');
-    // console.log('remove', agentId)
-    var data = JSON.stringify({
-      agentId: agentId,
-      queue: queue,
-      action: 'QueueRemove'
-    });
-
-    var config = {
-      method: 'get',
-      url:
-        APIENDPOINT +
-        '/ami/actions/rmq?Queue=' +
-        queue +
-        '&Interface=' + agentId + '',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    };
-
-    axios(config)
-      .then(function (response) {
-
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /// removeFromQueue end //////////////////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-  const [initialValue, setInitialValue] = useState({
-    CallerName: '',
-    callermobilenumber: '',
-    callerapplication: '',
-    subcategory: '',
-    category: '',
-    secsubcategory: '',
-    seccategory: '',
-    comments: '',
-    type: '',
-    issuetype: ''
+    setOpenSnackbar(false);
+  };
+  const [snackbarMessage, setSnackbarMessage] = useState({
+    severity: '',
+    message: ''
   });
+
   const classes = useStyle();
   const formRef = useRef({});
-  const agentServiceURL = 'http://164.52.205.10:42004/';
+  const [questions, setQuestions] = useState(getDispositionFormQuestions5);
+  const [accountcode1,setaccountcode1] = useState("")
 
-  const [issuetypes, setissuetypes] = useState([
-    {
-      "issuetype": "Tapstart"
-    },
-    {
-      "issuetype": "MUSKMELON"
-    },
-    {
-      "issuetype": "HDBFS"
-    },
-    {
-      "issuetype": "CREDIT SAISON"
-    },
-    {
-      "issuetype": "RBL"
-    },
-    {
-      "issuetype": "INCRED"
-    },
-  ]);
-  const [categories, setCategories] = useState([
-    {
-      "_id": "6019329a4d1d476d4ee4707c",
-      "category": "Positive",
-      "createdAt": "2021-02-02T11:08:10.879Z",
-      "updatedAt": "2021-02-02T11:08:10.879Z",
-      "__v": 0
-    },
-    {
-      "_id": "601947384d1d476d4ee4714c",
-      "category": "Negative",
-      "createdAt": "2021-02-02T12:36:08.951Z",
-      "updatedAt": "2021-02-02T12:36:08.951Z",
-      "__v": 0
-    },
-    {
-      "_id": "601947384d1d476d4ee4715c",
-      "category": "Hold",
-      "createdAt": "2021-02-02T12:36:08.951Z",
-      "updatedAt": "2021-02-02T12:36:08.951Z",
-      "__v": 0
-    },
-    {
-      "_id": "601947384d1d476d4ee4716c",
-      "category": "Already Positive",
-      "createdAt": "2021-02-02T12:36:08.951Z",
-      "updatedAt": "2021-02-02T12:36:08.951Z",
-      "__v": 0
-    },
-    {
-      "_id": "601947384d1d476d4ee4717c",
-      "category": "Details not Found",
-      "createdAt": "2021-02-02T12:36:08.951Z",
-      "updatedAt": "2021-02-02T12:36:08.951Z",
-      "__v": 0
-    },
-  ]);
-  const [seccategories, setSecCategories] = useState([
-    {
-      "_id": "601933d74d1d476d4ee47087",
-      "categoryid": "601947384d1d476d4ee4715c",
-      "secCategory": "Hold",
-      "createdAt": "2021-02-02T11:13:27.814Z",
-      "updatedAt": "2021-02-02T11:13:27.814Z",
-      "__v": 0
-    },
-    {
-      "_id": "601933e74d1d476d4ee47088",
-      "categoryid": "601947384d1d476d4ee4715c",
-      "secCategory": "Negative",
-      "createdAt": "2021-02-02T11:13:43.140Z",
-      "updatedAt": "2021-02-02T11:13:43.140Z",
-      "__v": 0
-    },
-    {
-      "_id": "601933f44d1d476d4ee47089",
-      "categoryid": "601947384d1d476d4ee4716c",
-      "secCategory": "Positive",
-      "createdAt": "2021-02-02T11:13:56.707Z",
-      "updatedAt": "2021-02-02T11:13:56.707Z",
-      "__v": 0
-    },
-    {
-      "_id": "601933f44d1d476d4ee47089",
-      "categoryid": "601947384d1d476d4ee4717c",
-      "secCategory": "Already Positive",
-      "createdAt": "2021-02-02T11:13:56.707Z",
-      "updatedAt": "2021-02-02T11:13:56.707Z",
-      "__v": 0
-    },
-    {
-      "_id": "601933f44d1d476d4ee47089",
-      "categoryid": "601947384d1d476d4ee4718c",
-      "secCategory": "Details not Found",
-      "createdAt": "2021-02-02T11:13:56.707Z",
-      "updatedAt": "2021-02-02T11:13:56.707Z",
-      "__v": 0
-    },
+  let initialValuesObj = {};
 
-  ]);
-  const [finalsubCategories, setfinalsubCategories] = useState([])
-  const [subCategories, setSubCategories] = useState([
+  const renderInputBaseQuestions = () => {
+    // if (customer.campaignType && customer.campaignType !== null)
+    //   return getDispositionFormQuestions5;
 
-    {
-      "_id": "601936184d1d476d4ee4709f",
-      "secCategoryid": "601933d74d1d476d4ee47087",
-      "subCategory": "Call Disconnected",
-      "createdAt": "2021-02-02T11:23:04.642Z",
-      "updatedAt": "2021-02-02T11:23:04.642Z",
-      "__v": 0
-    },
-    {
-      "_id": "601936214d1d476d4ee470a0",
-      "secCategoryid": "601933d74d1d476d4ee47087",
-      "subCategory": "Busy",
-      "createdAt": "2021-02-02T11:23:13.853Z",
-      "updatedAt": "2021-02-02T11:23:13.853Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933d74d1d476d4ee47087",
-      "subCategory": "Call Back",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "Interest Rate",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "Need Low amount",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "Need High Tenure",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "Need Low Tenure",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "Docs Not available",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "Availed from other sources",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "Delay in Call",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "Money Not required Now",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "Just Checking App",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "Others",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "High Line setup fee",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "High Processing Fee",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-    {
-      "_id": "6019362c4d1d476d4ee470a1",
-      "secCategoryid": "601933e74d1d476d4ee47088",
-      "subCategory": "Unhappy with Service",
-      "createdAt": "2021-02-02T11:23:24.484Z",
-      "updatedAt": "2021-02-02T11:23:24.484Z",
-      "__v": 0
-    },
-
-  ]);
-  const [finalsecSubCategories, sefinalsecSubCategories] = useState([])
-  const [secSubCategories, setSecSubCategories] = useState([]);
-
-  const handleChange = (e, s) => {
-
+    return getDispositionFormQuestions5;
   };
-  useEffect(() => {
-    let unmounted = false;
-
-    return () => {
-      unmounted = true;
-    };
-  }, []);
 
   useEffect(() => {
-    if (localStorage.getItem('AgentType') === 'Outbound') {
+    setQuestions(renderInputBaseQuestions());
+    questions.map(question => {
+      initialValuesObj[question.questionCode] = '';
+    });
+  }, [customer]);
 
-
-      console.log(props.selectedData1, "props came")
-
-
-      var finalsubCategories1 = []
-
-      var issuetype = issuetypes.filter((element) => element.issuetype === props.selectedData1.issuetype)
-      if (issuetype.length) {
-        issuetype = issuetype[0]
+  const addAnotherQues = (
+    ques,
+    index,
+    parentQuestion,
+    setFieldValue,
+    values
+  ) => {
+    let dependentQuesCodes = [];
+    const dependentQuesCodesArr = getDependentQuestionsCodes(
+      parentQuestion.option,
+      dependentQuesCodes
+    );
+    let filteredQues = questions;
+    if (!isEmpty(dependentQuesCodesArr)) {
+      filteredQues = questions.filter(
+        currentObj => !includes(dependentQuesCodesArr, currentObj.questionCode)
+      );
+      for (let queCode of dependentQuesCodesArr) {
+        if (values[queCode]) {
+          setFieldValue(queCode, '');
+        }
       }
-
-
-
-
-      var category = categories.filter((element) => element.category === props.selectedData1.category)
-      if (category.length) {
-
-        category = category[0]
-      }
-
-
-
-      var seccategory = seccategories.filter((element) => element.secCategory === props.selectedData1.seccategory)
-      if (seccategory.length) {
-
-        seccategory = seccategory[0].secCategory
-        const result = subCategories.filter(data => data.secCategoryid === seccategory._id);
-        // setfinalsubCategories(result);
-        // finalsubCategories1 = result
-      }
-
-
-      // console.log('finalsubCategories', finalsubCategories1)
-      // console.log(props.selectedData1.subcategory, "recheck")
-      // var subcategory = secSubCategories.filter((element) => element.secSubCategory === props.selectedData1.secsubcategory)
-      // console.log('subcategory ', subcategory)
-
-      var secsubcategory1 = subCategories.filter((element) => {
-        // console.log(props.selectedData1.secsubcategory,"props one data -", element.subCategory)
-        return element.subCategory === props.selectedData1.secsubcategory
-      })
-
-
-
-      if (secsubcategory1.length) {
-
-        var secsubcategory = secsubcategory1[0].subCategory
-
-      }
-
-
-
-
-
-
-
-
-
-
-
-
-      // if (subcategory.length) {
-      //   subcategory = subcategory[0]
-      //   // console.log('subcategory !!!!', subcategory)
-
-      //   console.log(subcategory,"props data subcategory")
-
-      // }
-
-      var subcategory = subCategories.filter((element) => element.subCategory === props.selectedData1.subcategory)
-
-
-      if (subcategory.length) {
-        subcategory = subcategory[0]
-      }
-
-
-
-
-      var data = {
-        CallerName: props.selectedData1.CallerName,
-        callermobilenumber: props.selectedData1.callermobilenumber,
-        callerapplication: props.selectedData1.callerapplication,
-        subcategory: props.selectedData1.subcategory,  //
-        category: category,
-        secsubcategory: props.selectedData1.secsubcategory, //
-        seccategory: seccategory,
-        comments: props.selectedData1.comments,
-        type: props.selectedData1.type,
-        issuetype: issuetype,
-      }
-
-      console.log(data, "data")
-
-      setInitialValue(data)
     }
-  }, [props])
+    if (ques && ques.dependentQuestion) {
+      for (let depQue of ques.dependentQuestion) {
+        depQue.parentQuestion = parentQuestion.questionCode;
+      }
+      filteredQues.splice(index + 1, 0, ...ques.dependentQuestion);
+    } else {
+      filteredQues.splice(index + 1, 0, ...[]);
+    }
+    setQuestions(filteredQues);
+  };
 
-  function updateCallData(uniqueid, dispostionData) {
-
-  }
-
-  function updateAgentCallStatus(updateData) {
-
-  }
+  const resetQuestions = () => {
+    const defaultState = renderInputBaseQuestions();
+    setQuestions(defaultState);
+  };
 
 
   const handleBreak = (e) => {
     var axios = require('axios');
-    const AgentSIPID = localStorage.getItem('AgentSIPID')
+    const AgentSIPID = localStorage.getItem('AgentSIPID1')
 
     // const AgentSIPID = localStorage.getItem('AgentSIPID')
+    
 
     var axios = require('axios');
     var config = {
       method: 'get',
-      url: `${AMI}/actions/break?Queue=${localStorage.getItem('Queue')}&Interface=SIP%2F${AgentSIPID}&Reason=AgentDisposed&Break=false`,
+      url: `${AMI}/actions/break?Queue=${localStorage.getItem('Queue')}&Interface=${AgentSIPID}&Reason=AgentDisposed&Break=false`,
       headers: {}
     };
 
@@ -505,757 +137,337 @@ export default function DispositionForm(props) {
   const handleSubmitDisposition = (data) => {
     console.log(data, "form data")
 
-    handleBreak()
+      data.AgentObject_ID = localStorage.getItem('Agent_Object_ID')
+   
+        handleBreak()
 
-    const id = localStorage.getItem('Interaction_id')
-    console.log(id, "agentid")
-    var axios = require('axios');
-    // data.CRMDISPOSITION =data
-    data = { "CRMDISPOSITION": data };
-    console.log("data", data)
-    var config = {
-      method: 'put',
-      url: `${AGENT_SERVICE}/interactions/${id}`,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      data: { "updateData": data }
-    };
+        const id = localStorage.getItem('Interaction_id')
+        //console.log(id, "agentid")
+        var axios = require('axios');
+         
+  
+        var config = {
+          method: 'put',
+          url: `${AGENT_SERVICE}/interactions/${id}`,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          data: { "updateData": {
+            "CRMDISPOSITION" :data
+          }
+          }
+        };
+  
+        axios(config)
+          .then(function (response) {
+            console.log(response, "response")
+            
+          })
+          .catch(function (error) {
+            console.log(error);
+          
+          });
+          changeAgentStatus("AgentDisposed")
+          handleBreak()
 
-    axios(config)
-      .then(function (response) {
-        console.log(response, "response")
-
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
   }
 
+  
 
-  function handleSubmit(e) {
-    handleSubmitDisposition()
-    // handleBreak()
-    console.log('formRef', formRef.current.values);
-    console.log('initialValue', initialValue)
-    var categoryOBJ = formRef.current.values.category;
-    var seccategoryOBJ = formRef.current.values.seccategory;
-    var subcategoryOBJ = formRef.current.values.subcategory;
-    var secsubcategoryOBJ = formRef.current.values.secsubcategory;
-
-    var category = '';
-    var secCategory = '';
-    var subCategory = '';
-    var secSubCategory = '';
-
-
-    // var data = {
-    //         "CallerName": "Vikram",
-    //         "callerapplication": "VI6736637",
-    //         "callermobilenumber": "9935413775",
-    //         "category": {_id: "6019329a4d1d476d4ee4707c", category: "Tapstart", createdAt: "2021-02-02T11:08:10.879Z", updatedAt: "2021-02-02T11:08:10.879Z", __v: 0}
-    //         "comments": "Comments"
-    //         "issuetype": {issuetype: "Request"}
-    //         "seccategory": {_id: "601933b74d1d476d4ee47085", categoryid: "6019329a4d1d476d4ee4707c", secCategory: "Application Status", createdAt: "2021-02-02T11:12:55.201Z", updatedAt: "2021-02-02T11:12:55.201Z", …}
-    //         "secsubcategory": {_id: "601938f04d1d476d4ee470bd", subCategoryid: "601934e94d1d476d4ee4708d", secSubCategory: "Reject", createdAt: "2021-02-02T11:35:12.997Z", updatedAt: "2021-02-02T11:35:12.997Z", …}
-    //         "subcategory": {_id: "601934e94d1d476d4ee4708d", secCategoryid: "601933b74d1d476d4ee47085", subCategory: "AIP", createdAt: "2021-02-02T11:18:01.592Z", updatedAt: "2021-02-02T11:18:01.592Z", …}
-    //         "type": "closed"
+  async function saveDispositionForm(formValue) {
+    // if(customer === null){
+    //   getCustomerDetails(localStorage.getItem('accountCode'))
     // }
-    // console.log('category', typeof categoryOBJ)
+    // var today = new Date();
+    // var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    // console.log("here is userdata",userData);
+    // formValue.sip_id = localStorage.getItem('AgentSIPID1');
+    // formValue.agent_type = localStorage.getItem('AgentType');
+    // // formValue.agent_id = localStorage.getItem('AgentSIPID1');
+    // formValue.customerPhoneNumber = localStorage.getItem('CallerNumber');
+    // formValue.agentName = localStorage.getItem('AgentName');
+   
+    // if(formValue.escalated === 'true'){
+    //   formValue.escalated = true
+    // }else{
+    //   formValue.escalated = false
+    // }
 
-    if (typeof categoryOBJ === 'object') {
-      if ('category' in categoryOBJ) {
-        category = categoryOBJ.category
-      }
+    // formValue.callbackTime = time;
+    // formValue.AccountCode = localStorage.getItem('accountCode')
+    // formValue.Disposed_By =localStorage.getItem('AgentType')
+    // formValue.AgentName=localStorage.getItem('AgentName')
+    // formValue.Sip_ID=localStorage.getItem('AgentSIPID1')
+    // formValue.CallerNumber=localStorage.getItem('CallerNumber')
 
-    }
-    if (typeof seccategoryOBJ === 'object') {
-      if ('secCategory' in seccategoryOBJ) {
-        secCategory = seccategoryOBJ.secCategory
-      }
-    }
-    if (typeof subcategoryOBJ === 'object') {
-      if ('subCategory' in subcategoryOBJ) {
-        subCategory = subcategoryOBJ.subCategory
-      }
-    }
-    if (typeof secsubcategoryOBJ === 'object') {
-      if ('secSubCategory' in secsubcategoryOBJ) {
-        secSubCategory = secsubcategoryOBJ.secSubCategory
-      }
-    }
-
-    var data = {
-      "Partner Name": formRef.current.values.issuetype.issuetype,
-      "Disposition": secCategory,
-      "Reason": subCategory
-    }
-
-    console.log(data)
-
-    handleSubmitDisposition(data)
-
-    console.log(data, "formdata")
-
-    if (localStorage.getItem('AgentType') === 'Outbound') {
-      data = {
-        CallerName: initialValue.CallerName,
-        callermobilenumber: initialValue.callermobilenumber,
-        callerapplication: initialValue.callerapplication,
-        comments: formRef.current.values.comments,
-        type: formRef.current.values.type,
-      }
-
-      console.log('initialValue', initialValue);
-      var subcategory = initialValue.subcategory;
-      console.log('subcategory', subcategory);
-      if (typeof subcategory === 'object') {
-        data['subcategory'] = initialValue.subcategory.subCategory
-      } else {
-        data['subcategory'] = initialValue.subcategory;
-      }
-      var category = initialValue.category;
-      console.log('category', typeof category);
-      if (typeof category === 'object') {
-        data['category'] = initialValue.category.category
-      } else {
-        data['category'] = initialValue.category;
-      }
-      var secsubcategory = initialValue.secsubcategory;
-      console.log('secsubcategory', secsubcategory);
-      if (typeof secsubcategory === 'object') {
-        data['secsubcategory'] = initialValue.secsubcategory.secSubCategory
-      } else {
-        data['secsubcategory'] = initialValue.secsubcategory;
-      }
-      var seccategory = initialValue.seccategory;
-      console.log('seccategory', seccategory);
-      if (typeof seccategory === 'object') {
-        data['seccategory'] = initialValue.seccategory.secCategory
-      } else {
-        data['seccategory'] = initialValue.seccategory;
-      }
-
-      var issuetype = initialValue.issuetype;
-      console.log('issuetype', issuetype);
-
-      if (typeof issuetype === 'object') {
-        data['issuetype'] = initialValue.issuetype.issuetype
-      } else {
-        data['issuetype'] = '';
-      }
-    }
-    console.log('data after outbound', data)
-
-    localStorage.setItem('callDispositionStatus', 'Disposed');
-    localStorage.setItem('callDispositionStatus', 'Disposed');
-    if (localStorage.getItem('Agenttype') === 'L1') {
-      removeFromQueue(`SIP/${localStorage.getItem('AgentSIPID')}`, 5003)
-      addToQueue(`SIP/${localStorage.getItem('AgentSIPID')}`, 5003)
-    }
-    if (localStorage.getItem('Agenttype') === 'L2') {
-      removeFromQueue('Local/3' + localStorage.getItem('AgentSIPID') + '@from-queue', 5001)
-      addToQueue('Local/3' + localStorage.getItem('AgentSIPID') + '@from-queue', 5001)
-    }
-    props.setCurrentCallDetails(
-      localStorage.getItem('callStatusId'),
-      localStorage.getItem('callUniqueId'),
-      localStorage.getItem('callType'),
-      localStorage.getItem('callStatus'),
-      localStorage.getItem('callEvent'),
-      localStorage.getItem('callDispositionStatus'),
-      localStorage.getItem('callerNumber'),
-      localStorage.getItem('breakStatus')
-    );
-    updateCallData(localStorage.getItem('callUniqueId'), data);
-    if (localStorage.getItem('AgentType') === 'Outbound') {
-
-      var finalType = data.type;
-      if (data.type === 'open' || data.type === 'close') {
-        finalType = 'close';
-      }
-      if (data.type === 'disconnected') {
-        finalType = 'open';
-      }
-      updateCallData(localStorage.getItem('L1ID'), {
-        "type": finalType
-      });
-    }
-    updateAgentCallStatus({
-      callStatusId: localStorage.getItem('callStatusId'),
-      callUniqueId: localStorage.getItem('callUniqueId'),
-      callType: localStorage.getItem('callType'),
-      callStatus: localStorage.getItem('callStatus'),
-      callEvent: localStorage.getItem('callEvent'),
-      callDispositionStatus: localStorage.getItem('callDispositionStatus'),
-      callerNumber: localStorage.getItem('callerNumber'),
-    })
-
-
-
+    // if(customer){
+    //   formValue.uploadInfo=customer
+    // }
+    
+    // formValue.restaurantID = localStorage.getItem('restaurantID')
+    // if(localStorage.getItem('Agent_Object_ID')){
+    //   handleSubmitDisposition(formValue)
+    // }
+    handleSubmitDisposition(formValue)
+    // console.log("value",formValue)
+    // try {
+    //   await Axios.post(SAVE_DISPOSITION, formValue);
+    //   setSnackbarMessage({
+    //     severity: 'success',
+    //     message: 'Form submitted successfully !'
+        
+    //   });
+    //   setCurrentrecord("")
+    //   setOpenSnackbar(true);
+    // } catch (err) {
+    //   alert('Form submission failed');
+    //   console.log(err.message);
+    //   setSnackbarMessage({
+    //     severity: 'error',
+    //     message: 'Something went wrong. Please try again !'
+    //   });
+    //   setOpenSnackbar(true);
+    // }
   }
-  const [autoCompleteKey, setAutoCompleteKey] = useState(0);
-  return (
-    <Formik
-      validateOnBlur={false}
-      initialValues={initialValue}
-      disform={initialValue}
-      onSubmit={(e, { validate }) => {
-        handleSubmit(e);
-        validate(e);
-      }}
-      innerRef={formRef}
-      validationSchema={yup.object({
-        issuetype: yup
-          .object()
-          .required('Please select a  Partner')
-          .typeError('Please select a  Partner'),
 
-        seccategory: yup
-          .object()
-          .required('Please select a  Disposition')
-          .typeError('Please select a valid  Disposition'),
-        subcategory: yup
-          .object()
-          .required('Please select a  Reason')
-          .typeError('Please select a valid  Reason'),
+  const onInputChange = (
+    inputTypeValues,
+    index,
+    ques,
+    setFieldValue,
+    values
+  ) => {
+    const inputValue = inputTypeValues[ques.questionCode];
 
-
-
-      })}
-    >
-      {({ setFieldValue }) => (
-        <Form>
-          <Grid container spacing={2} direction="row">
-            {/* {localStorage.getItem('AgentType') === 'Inbound' ? <Grid item xs={4} sm={4}>
-              <Field
-                className={classes.fieldContainer}
-                disabled={false}
-                name="CallerName"
-                component={TextField}
-                variant="outlined"
-                multiline
-                label="Caller Name"
-              />
-            </Grid> : <Grid item xs={4} sm={4}>
-              <Field
-                className={classes.fieldContainer}
-                value={initialValue.CallerName}
-                disabled={true}
-                name="CallerName"
-                component={TextField}
-                variant="outlined"
-                multiline
-                label="Caller Name"
-              />
-            </Grid>} */}
-            {/* {localStorage.getItem('AgentType') === 'Inbound' ?
-              <Grid item xs={4} sm={4}>
-                <Field
-                  className={classes.fieldContainer}
-                  name="callerapplication"
-                  disabled={false}
-                  component={TextField}
-                  variant="outlined"
-                  multiline
-                  label="Caller Application Number"
-                />
-              </Grid> : <Grid item xs={4} sm={4}>
-                <Field
-                  className={classes.fieldContainer}
-                  name="callerapplication"
-                  value={initialValue.callerapplication}
-                  disabled={true}
-                  component={TextField}
-                  variant="outlined"
-                  multiline
-                  label="Caller Application Number"
-                />
-              </Grid>} */}
-
-            {/* {localStorage.getItem('AgentType') === 'Inbound' ?
-              <Grid item xs={4} sm={4}>
-                <Field
-                  className={classes.fieldContainer}
-                  name="callermobilenumber"
-                  disabled={false}
-                  component={TextField}
-                  variant="outlined"
-                  multiline
-                  label="Caller Mobile Number"
-                />
-              </Grid> : <Grid item xs={4} sm={4}>
-                <Field
-                  className={classes.fieldContainer}
-                  name="callermobilenumber"
-                  value={initialValue.callermobilenumber}
-                  disabled={true}
-                  component={TextField}
-                  variant="outlined"
-                  multiline
-                  label="Caller Mobile Number"
-                />
-              </Grid>} */}
-
-            {localStorage.getItem('AgentType') === 'Inbound' ?
-              <Grid item xs={4} sm={4}>
-                <FormControl
-                  variant="outlined"
-                  className={classes.fieldContainer}
-                >
-                  <Autocomplete
-                    options={issuetypes}
-                    getOptionLabel={option => typeof option === 'string' ? option : option.issuetype}
-                    disabled={false}
-                    value={initialValue.issuetype}
-                    getOptionSelected={(option, value) => {
-                      return value.issuetype === option.issuetype
-                    }}
-                    key={autoCompleteKey}
-                    onChange={(event, value) => {
-                      // console.log('value', value)
-                      setFieldValue('issuetype', value);
-                      var i = initialValue;
-                      i.issuetype = value;
-                      setInitialValue(i)
-                    }}
-                    renderInput={params => (
-                      <Field
-                        component={TextField}
-                        {...params}
-                        label="Select Partner Name"
-                        variant="outlined"
-                        name="issuetype"
-                      />
-                    )}
-                    name="issuetype"
-                  />
-                </FormControl>
-              </Grid> : <Grid item xs={4} sm={4}>
-                <FormControl
-                  variant="outlined"
-                  className={classes.fieldContainer}
-                >
-                  <Autocomplete
-                    options={issuetypes}
-                    getOptionLabel={option => typeof option === 'string' ? option : option.issuetype}
-                    disabled={true}
-                    value={initialValue.issuetype}
-                    getOptionSelected={(option, value) => {
-                      return value.issuetype === option.issuetype
-                    }}
-                    key={autoCompleteKey}
-                    onChange={(event, value) => {
-                      // console.log('value', value)
-                      setFieldValue('issuetype', value);
-                      var i = initialValue;
-                      i.issuetype = value;
-                      setInitialValue(i)
-                    }}
-                    renderInput={params => (
-                      <Field
-                        component={TextField}
-                        {...params}
-                        label="Select a issue Type"
-                        variant="outlined"
-                        name="issuetype"
-                      />
-                    )}
-                    name="issuetype"
-                  />
-                </FormControl>
-              </Grid>}
-
-            {/* {localStorage.getItem('AgentType') === 'Inbound' ?
-              <Grid item xs={4} sm={4}>
-                <FormControl
-                  variant="outlined"
-                  className={classes.fieldContainer}
-                >
-                  <Autocomplete
-                    options={categories}
-                    getOptionLabel={option => typeof option === 'string' ? option : option.category}
-                    value={initialValue.category}
-                    disabled={false}
-                    getOptionSelected={(option, value) => {
-                      return value.label === option.label
-                    }}
-                    key={autoCompleteKey}
-                    onChange={(event, value) => {
-                      setFieldValue('category', value);
-                      var i = initialValue;
-                      i.category = value;
-                      setInitialValue(i)
-                    }}
-                    renderInput={params => (
-                      <Field
-                        component={TextField}
-                        {...params}
-                        label="Disposition"
-                        variant="outlined"
-                        name="partnername"
-                      />
-                    )}
-                    name="partnername"
-                  />
-                </FormControl>
-              </Grid> : <Grid item xs={4} sm={4}>
-                <FormControl
-                  variant="outlined"
-                  className={classes.fieldContainer}
-                >
-                  <Autocomplete
-                    options={categories}
-                    getOptionLabel={option => typeof option === 'string' ? option : option.category}
-                    value={initialValue.category}
-                    disabled={true}
-                    getOptionSelected={(option, value) => {
-                      return value.label === option.label
-                    }}
-                    key={autoCompleteKey}
-                    onChange={(event, value) => {
-                      setFieldValue('category', value);
-                      var i = initialValue;
-                      i.category = value;
-                      setInitialValue(i)
-                    }}
-                    renderInput={params => (
-                      <Field
-                        component={TextField}
-                        {...params}
-                        label="Select a Partner name"
-                        variant="outlined"
-                        name="partnername"
-                      />
-                    )}
-                    name="partnername"
-                  />
-                </FormControl>
-              </Grid>} */}
-
-            {localStorage.getItem('AgentType') === 'Inbound' ?
-              <Grid item xs={4} sm={4}>
-                <FormControl
-                  variant="outlined"
-                  className={classes.fieldContainer}
-                >
-                  <Autocomplete
-                    options={seccategories}
-                    getOptionLabel={option => typeof option === 'string' ? option : option.secCategory}
-                    value={initialValue.seccategory}
-                    disabled={false}
-                    getOptionSelected={(option, value) => {
-                      return value.label === option.label
-                    }}
-                    key={autoCompleteKey}
-                    onChange={(event, value) => {
-                      if (value !== null) {
-                        setFieldValue('seccategory', value);
-                        var i = initialValue;
-                        i.seccategory = value;
-                        setInitialValue(i)
-                        setfinalsubCategories([])
-                        const result = subCategories.filter(data => data.secCategoryid === value._id);
-                        console.log(result);
-                        setfinalsubCategories(result);
-                      }
-                    }}
-                    renderInput={params => (
-                      <Field
-                        component={TextField}
-                        {...params}
-                        label="Disposition"
-                        variant="outlined"
-                        name="tag"
-                      />
-                    )}
-                    name="tag"
-                  />
-                </FormControl>
-              </Grid> : <Grid item xs={4} sm={4}>
-                <FormControl
-                  variant="outlined"
-                  className={classes.fieldContainer}
-                >
-                  <Autocomplete
-                    options={seccategories}
-                    getOptionLabel={option => typeof option === 'string' ? option : option.secCategory}
-                    value={initialValue.seccategory}
-                    disabled={true}
-                    getOptionSelected={(option, value) => {
-                      return value.label === option.label
-                    }}
-                    key={autoCompleteKey}
-                    onChange={(event, value) => {
-                      if (value !== null) {
-                        setFieldValue('seccategory', value);
-                        var i = initialValue;
-                        i.seccategory = value;
-                        setInitialValue(i)
-                        setfinalsubCategories([])
-                        const result = subCategories.filter(data => data.secCategoryid === value._id);
-                        console.log(result);
-                        setfinalsubCategories(result);
-                      }
-                    }}
-                    renderInput={params => (
-                      <Field
-                        component={TextField}
-                        {...params}
-                        label="Select Tag"
-                        variant="outlined"
-                        name="tag"
-                      />
-                    )}
-                    name="tag"
-                  />
-                </FormControl>
-              </Grid>}
-
-            {localStorage.getItem('AgentType') === 'Inbound' ?
-              <Grid item xs={4} sm={4}>
-                <FormControl
-                  variant="outlined"
-                  className={classes.fieldContainer}
-                >
-                  <Autocomplete
-                    options={finalsubCategories}
-                    getOptionLabel={option => typeof option === 'string' ? option : option.subCategory}
-                    value={initialValue.subcategory}
-                    disabled={false}
-                    getOptionSelected={(option, value) => {
-                      return value.label === option.label
-                    }}
-                    key={autoCompleteKey}
-                    onChange={(event, value) => {
-                      console.log('event', value)
-                      if (value !== null) {
-                        setFieldValue('subcategory', value);
-                        var i = initialValue;
-                        i.subcategory = value;
-                        setInitialValue(i)
-                        sefinalsecSubCategories([]);
-                        const result = secSubCategories.filter(data => data.subCategoryid === value._id);
-                        console.log('result', result)
-                        sefinalsecSubCategories(result);
-                      }
-                    }}
-                    renderInput={params => (
-                      <Field
-                        component={TextField}
-                        {...params}
-                        label="Reason"
-                        variant="outlined"
-                        name="subtag1"
-                      />
-                    )}
-                    name="subtag1"
-                  />
-                </FormControl>
-              </Grid> : <Grid item xs={4} sm={4}>
-                <FormControl
-                  variant="outlined"
-                  className={classes.fieldContainer}
-                >
-                  <Autocomplete
-                    options={finalsubCategories}
-                    getOptionLabel={option => typeof option === 'string' ? option : option.subCategory}
-                    value={initialValue.subcategory}
-                    disabled={true}
-                    getOptionSelected={(option, value) => {
-                      return value.label === option.label
-                    }}
-                    key={autoCompleteKey}
-                    onChange={(event, value) => {
-                      console.log('event', value)
-                      if (value !== null) {
-                        setFieldValue('subcategory', value);
-                        var i = initialValue;
-                        i.subcategory = value;
-                        setInitialValue(i)
-                        sefinalsecSubCategories([]);
-                        const result = secSubCategories.filter(data => data.subCategoryid === value._id);
-                        console.log('result', result)
-                        sefinalsecSubCategories(result);
-                      }
-                    }}
-                    renderInput={params => (
-                      <Field
-                        component={TextField}
-                        {...params}
-                        label="Select a Sub-Tag 1"
-                        variant="outlined"
-                        name="subtag1"
-                      />
-                    )}
-                    name="subtag1"
-                  />
-                </FormControl>
-              </Grid>
+    if (inputValue) {
+      if (ques.questionType === 'checkbox') {
+        if (!isEmpty(inputValue)) {
+          const checkBoxValues =
+            (values[ques.questionCode] &&
+              values[ques.questionCode].split(',')) ||
+            [];
+          const addQuestionOption = difference(inputValue, checkBoxValues);
+          const removedOption = difference(checkBoxValues, inputValue);
+          if (!isEmpty(addQuestionOption)) {
+            for (let cbValue of addQuestionOption) {
+              const selectedOption = find(ques.option, { label: cbValue });
+              addAnotherQues(
+                { ...selectedOption, skipFilter: true },
+                index,
+                ques,
+                setFieldValue,
+                values
+              );
             }
+            setFieldValue(ques.questionCode, inputValue.join());
+          }
+          if (!isEmpty(removedOption)) {
+            /** reset the question when any value removed from checkbox. because it was re-adding the question when not resetting it. */
+            let dependentQuesCodes = [];
+            const dependentQuesCodesArr = getDependentQuestionsCodes(
+              ques.option,
+              dependentQuesCodes
+            );
+            if (!isEmpty(dependentQuesCodesArr)) {
+              let filteredQues = questions.filter(
+                currentObj =>
+                  !includes(dependentQuesCodesArr, currentObj.questionCode)
+              );
+              questions = filteredQues;
+              setQuestions([...filteredQues]);
+            }
+            /** end */
 
-            {/* {localStorage.getItem('AgentType') === 'Inbound' ?
-              <Grid item xs={4} sm={4}>
-                <FormControl
-                  variant="outlined"
-                  className={classes.fieldContainer}
-                >
-                  <Autocomplete
-                    options={finalsecSubCategories}
-                    getOptionLabel={option => typeof option === 'string' ? option : option.secSubCategory}
-                    value={initialValue.secsubcategory}
-                    disabled={false}
-                    getOptionSelected={(option, value) => {
-                      return value.label === option.label
-                    }}
-                    key={autoCompleteKey}
-                    onChange={(event, value) => {
-                      setFieldValue('secsubcategory', value);
-                      var i = initialValue;
-                      i.secsubcategory = value;
-                      setInitialValue(i)
-                    }}
-                    renderInput={params => (
-                      <Field
-                        component={TextField}
-                        {...params}
-                        label="Select a Sub-Tag 2"
-                        variant="outlined"
-                        name="subtag2"
+            const remainingOptions = intersection(inputValue, checkBoxValues);
+
+            /** adding the questions after reset, which is selected in checkbox*/
+            for (let cbValue of remainingOptions) {
+              const selectedOption = find(ques.option, { label: cbValue });
+              addAnotherQues(
+                { ...selectedOption, skipFilter: true },
+                index,
+                ques,
+                setFieldValue,
+                values
+              );
+            }
+            setFieldValue(ques.questionCode, inputValue.join());
+          }
+        } else {
+          addAnotherQues({}, index, ques, setFieldValue, values);
+          setFieldValue(ques.questionCode, inputValue.join());
+        }
+      } else {
+        const selectedOption = find(ques.option, { label: inputValue });
+        addAnotherQues(selectedOption, index, ques, setFieldValue, values);
+        setFieldValue(ques.questionCode, inputValue);
+      }
+    }
+  };
+
+  return (
+    <>
+      <div
+        style={{
+          maxHeight: 550,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          padding: '0.5rem 0'
+        }}
+      >
+        <Formik
+          validateOnBlur={false}
+          initialValues={initialValuesObj}
+          onSubmit={async (values, { setSubmitting, resetForm }) => {
+            console.log(values);
+            await saveDispositionForm(values);
+            setSubmitting(false);
+            resetQuestions();
+            resetForm();
+          }}
+          innerRef={formRef}
+        >
+          {({ setFieldValue, values }) => (
+            <Form>
+              <Grid container spacing={2} direction="column">
+                {map(questions, (ques, index) =>
+                  ques.questionType && ques.questionType !== 'select' ? (
+                    <Grid item key={index}>
+                      <RenderQuestionByInputTypes
+                        question={ques}
+                        // visibility={visibility}
+                        onInputChange={newValues =>
+                          onInputChange(
+                            newValues,
+                            index,
+                            ques,
+                            setFieldValue,
+                            values
+                          )
+                        }
                       />
-                    )}
-                    name="subtag2"
-                  />
-                </FormControl>
-              </Grid> : <Grid item xs={4} sm={4}>
-                <FormControl
-                  variant="outlined"
-                  className={classes.fieldContainer}
-                >
-                  <Autocomplete
-                    options={finalsecSubCategories}
-                    getOptionLabel={option => typeof option === 'string' ? option : option.secSubCategory}
-                    value={initialValue.secsubcategory}
-                    disabled={true}
-                    getOptionSelected={(option, value) => {
-                      return value.label === option.label
-                    }}
-                    key={autoCompleteKey}
-                    onChange={(event, value) => {
-                      setFieldValue('secsubcategory', value);
-                      var i = initialValue;
-                      i.secsubcategory = value;
-                      setInitialValue(i)
-                    }}
-                    renderInput={params => (
-                      <Field
-                        component={TextField}
-                        {...params}
-                        label="Select a Sub-Tag 2"
+                    </Grid>
+                  ) : (
+                    <Grid item key={index}>
+                      <FormControl
                         variant="outlined"
-                        name="subtag2"
-                      />
-                    )}
-                    name="subtag2"
-                  />
-                </FormControl>
-              </Grid>}
-            {localStorage.getItem('AgentType') === 'Inbound' ?
-              <Grid item xs={4} sm={4}>
-                <Field
-                  className={classes.fieldContainer}
-                  name="comments"
-                  component={TextField}
-                  variant="outlined"
-                  multiline
-                  rows={2}
-                  label="Comments"
-                />
-              </Grid> : <Grid item xs={4} sm={4}>
-                <Field
-                  className={classes.fieldContainer}
-                  name="comments"
-                  component={TextField}
-                  variant="outlined"
-                  multiline
-                  rows={2}
-                  label="Comments"
-                />
-              </Grid>} */}
-            {/* {localStorage.getItem('AgentType') === 'Inbound' ?
-              <Grid item>
-
-                <Field component={RadioGroup} name="type" row>
-                  <FormControlLabel
-                    value="open"
-                    control={<Radio />}
-                    label="Open"
-                    onChange={handleChange}
-                  />
-                  <FormControlLabel
-                    value="closed"
-                    control={<Radio />}
-                    label="Closed"
-                    onChange={handleChange}
-
-                  />
-                  <FormControlLabel
-                    value="disconnected"
-                    control={<Radio />}
-                    label="disconnected"
-                    onChange={handleChange}
-
-                  />
-                </Field>
-              </Grid> : <Grid item>
-
-                <Field component={RadioGroup} name="type" row>
-                  <FormControlLabel
-                    value="open"
-                    control={<Radio />}
-                    label="Open"
-                    onChange={handleChange}
-                  />
-                  <FormControlLabel
-                    value="closed"
-                    control={<Radio />}
-                    label="Closed"
-                    onChange={handleChange}
-
-                  />
-                  <FormControlLabel
-                    value="disconnected"
-                    control={<Radio />}
-                    label="disconnected"
-                    onChange={handleChange}
-
-                  />
-                </Field>
-              </Grid>} */}
-          </Grid>
-          <br />
-
-          <span>  </span>
-          <span> </span>
-          <span> </span>
-          <span> </span>
-          <Grid container spacing={3} direction="row">
-            <Grid item xs={6} sm={6}>
-              <Button color="primary" variant="contained" onClick={handleSubmit} disabled={disable}>
-                Submit
-          </Button>&nbsp;
-          </Grid>
-            {/* <Grid item xs={6} sm={6}>
-              <Checkbox
-                checked={takebreak}
-                onChange={onChangeTakebreak}
-                color="primary"
-                inputProps={{ 'aria-label': 'secondary checkbox' }}
-              /> Would like to take break after this call
-            </Grid> */}
-          </Grid>
-        </Form>
-      )}
-    </Formik>
+                        className={classes.fieldContainer}
+                      >
+                        <Autocomplete
+                          disabled={visibility}
+                          options={ques.option}
+                          getOptionLabel={option => option.label}
+                          getOptionSelected={(option, value) => {
+                            return value.label === option.label;
+                          }}
+                          id={`autocomplete-id-${index}-${ques.questionCode}`}
+                          onChange={(event, value) => {
+                            if (value) {
+                              addAnotherQues(
+                                value,
+                                index,
+                                ques,
+                                setFieldValue,
+                                values
+                              );
+                              setFieldValue(ques.questionCode, value.label);
+                            }
+                          }}
+                          renderOption={(option, value) => {
+                            if (values[ques.questionCode] === '') {
+                              if (value.selected) {
+                                setFieldValue(
+                                  ques.questionCode,
+                                  value.inputValue
+                                );
+                                if (value.inputValue === option.label) {
+                                  addAnotherQues(
+                                    option,
+                                    index,
+                                    ques,
+                                    setFieldValue,
+                                    values
+                                  );
+                                }
+                              }
+                            }
+                            return option.label;
+                          }}
+                          renderInput={params => {
+                            const inputObj = {
+                              id: `id-${index}-${ques.questionCode}`
+                            };
+                            if (values[ques.questionCode]) {
+                              inputObj.value = values[ques.questionCode];
+                            } else {
+                              inputObj.value = '';
+                            }
+                            return (
+                              <Field
+                                component={TextField}
+                                {...params}
+                                label={ques.question}
+                                variant="outlined"
+                                name={ques.questionCode}
+                                id={`field-id-${ques.questionCode}`}
+                                inputProps={{
+                                  ...params.inputProps,
+                                  ...inputObj
+                                }}
+                                // required
+                              />
+                            );
+                          }}
+                          name={ques.questionCode}
+                        />
+                      </FormControl>
+                    </Grid>
+                  )
+                )}
+                
+                     <Grid item container justify="center" alignContent="center">
+                       {
+                         localStorage.getItem('callStatus') === 'AgentComplete' &&  <Button
+                         type="submit"
+                         disabled={visibility}
+                         color="primary"
+                         variant="contained"
+                         size="large"
+     
+                       >
+                         Submit
+                       </Button>
+                       }
+                 
+                </Grid>
+                  
+                {/* <Grid item container justify="center" alignContent="center">
+                  <Button
+                    type="submit"
+                    disabled={visibility}
+                    color="primary"
+                    variant="contained"
+                    size="large"
+                  >
+                    Submit
+                  </Button>
+                </Grid> */}
+              </Grid>
+            </Form>
+          )}
+        </Formik>
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={4000}
+          onClose={handleClose}
+        >
+          <Alert onClose={handleClose} severity={snackbarMessage.severity}>
+            {snackbarMessage.message}
+          </Alert>
+        </Snackbar>
+      </div>
+    </>
   );
-}
+};
+
+export default DispositionForm;

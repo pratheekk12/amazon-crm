@@ -46,8 +46,8 @@ import { setDistributorOrders } from '../../redux/action';
 import DispositionForm from './DispositionForm';
 
 
-const SOCKETENDPOINT = 'http://192.168.4.44:53003';
-const APIENDPOINT = 'http://192.168.4.44:53003';
+const SOCKETENDPOINT = 'http:///';
+const APIENDPOINT = 'http:///';
 const axios = require('axios');
 
 const socket = socketIOClient(SOCKETENDPOINT, { transports: ['websocket'] });
@@ -253,7 +253,7 @@ const Dashboard = ({
 
     axios(config)
       .then(function (response) {
-        console.log((response.data));
+        // console.log((response.data));
         setCurrentCallDetails(
           response.data.Event,
           localStorage.setItem('Interaction_id', response.data.InteractionID),
@@ -475,7 +475,7 @@ const Dashboard = ({
             <CustomBreadcrumbs />
             <Page className={classes.root} title="Dashboard">
               <Container maxWidth={false}>
-                <Grid container spacing={3}>
+              <Grid container spacing={3}>
                   <Grid item lg={4} md={6} xs={12}>
 
                     <Grid item>
@@ -486,9 +486,16 @@ const Dashboard = ({
                     </Grid>
                   </Grid>
                 </Grid>
+                
                 <Grid container spacing={3}>
+                  <Grid item lg={6} md={6} xs={12}>
+                  <Card>
+                      <CardHeader title="Customer Details" />
+                      <Divider />
+                    </Card>
+                  </Grid>
 
-                  <Grid item lg={12} md={12} xs={12}>
+                  <Grid item lg={6} md={6} xs={12}>
 
                     <Card>
                       <CardHeader title="Disposition Details" />

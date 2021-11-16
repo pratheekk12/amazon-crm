@@ -28,6 +28,7 @@ import { setLoggedIn, setSearchDistributor } from 'src/redux/action';
 import { connect } from 'react-redux';
 import Axios from 'axios';
 import { SET_SEARCH_DISTRIBUTOR } from 'src/redux/constants';
+import { changeAgentStatus } from 'src/modules/dashboard-360/views/functions';
 
 import {
 
@@ -89,7 +90,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-var APIENDPOINT = 'http://192.168.4.44:53003';
+var APIENDPOINT = 'http:///';
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// addToQueue start //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////

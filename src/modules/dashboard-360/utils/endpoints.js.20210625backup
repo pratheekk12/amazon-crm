@@ -1,6 +1,6 @@
 export const AUTH = 'http://192.168.4.44:53001/api'
 export const AGENT_SERVICE = 'http://192.168.4.44:53002/api'
-export const AMI = 'http://192.168.4.44:53003/ami'
+export const AMI = 'http:////ami'
 
 
 export const CAMPAIGN = 'http://192.168.4.44:53006/api'

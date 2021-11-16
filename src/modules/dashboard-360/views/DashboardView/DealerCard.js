@@ -119,7 +119,7 @@ export default function DealerCard(props) {
   }
 
   const [showFullDetailsModal, setShowFullDetailsModal] = useState(false);
-  const SOCKETENDPOINT = 'http://192.168.4.44:53003/';
+  const SOCKETENDPOINT = 'http:////';
   const getIconColor = () => {
     return 'primary';
   };
