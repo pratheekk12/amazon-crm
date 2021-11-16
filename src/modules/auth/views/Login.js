@@ -60,7 +60,7 @@ const useStyles = makeStyles(theme => ({
     height: '100vh'
   },
   image: {
-    backgroundImage: 'url(/static/images/merittrack.jpg)',
+    backgroundImage: 'url(/static/images/otp.png)',
     backgroundRepeat: 'no-repeat',
     backgroundColor:
       theme.palette.type === 'light'
@@ -488,7 +488,7 @@ function Login({ setLoggedInMain, setAccountTypeMain, setUserDetailsMain }) {
               }
 
               <Typography align="center">
-                Tap Start Outbound
+                Otp Express
               </Typography>
 
             </Box>
