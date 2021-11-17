@@ -69,15 +69,15 @@ const InteractionReport = (props) => {
         axios.post(`${AGENT_SERVICE}/interactions/bydaterange`, data)
             .then((res) => {
                 console.log(res.data.records)
-                res.data = res.data.reverse()
+                // res.data = res.data.reverse()
                 var i = 0
-                res.data.map((ele) => {
+                res.data.records.map((ele) => {
                     i = i + 1
                     return ele.id = i
                 })
                 
                 let finalData =[]
-                res.data.map((ele)=>{
+                res.data.records.map((ele)=>{
                     if(ele.hasOwnProperty("CRMDISPOSITION")){
                         finalData.push(ele.CRMDISPOSITION)
                     }
@@ -89,14 +89,7 @@ const InteractionReport = (props) => {
             })
     }
 
-    // if (records.length > 0) {
-    //     const records1 = records.map((ele) => {
-    //         return ele.CALLSTARTTIME === new Date(ele.CALLSTARTTIME)
-    //     })
-    //     setRecords(records1)
-    // }
-
-
+  
     return (<div>
         <br />
         <br />
@@ -108,124 +101,17 @@ const InteractionReport = (props) => {
         <Grid container spacing={3} direction="row">
             <Grid item xs={6} sm={6} lg={5}></Grid>
             <Grid item xs={6} sm={6} lg={4}> <InteractionDate getData={getData} /><DownloadReport DownloadData={records} /></Grid>
-            <Grid item xs={6} sm={6} lg={1}></Grid>
+            <Grid item xs={6} sm={6} lg={1}>{records.length > 0 && 
+                       <ExcelReport
+                        data={records}
+                        fileName={'Interaction Report '}
+                     />
+                    }</Grid>
             <Grid item xs={6} sm={6} lg={2}></Grid>
         </Grid>
+        
         <Grid container spacing={3} direction="row">
-            {/* {
-                records.length > 0 ? (
-                    <Grid item xs={6} sm={6} lg={12}>
-                        <DataGrid rows={records} columns={profilesColumns} pageSize={10}
-                            //rowsPerPageOptions={[10, 20, 50]}
-                            autoHeight="true"
-                            pagination />
-                    </Grid>
-                ) : (null)
-            } */}
-        </Grid>
-        <Grid container spacing={3} direction="row">
-            {
-                records.length > 0 ? (
-                    <Grid item xs={6} sm={6} lg={12}>
-                        <div id="dtHorizontalVerticalExample" class="table table-striped table-bordered table-sm " cellspacing="2"
-                            width="100%">
-
-                            <table class="table table-bordered table-striped mb-0">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Id</th>
-                                        <th scope="col">Call Id</th>
-                                        <th scope="col" >Agent Name</th>
-                                        <th scope="col">Agent Id</th>
-                                        <th scope="col">Caller Number</th>
-                                        <th scope="col">Call Start Time</th>
-                                        <th scope="col">Call Picked Time</th>
-                                        <th scope="col">Call Disconnected Time</th>
-                                        <th scope="col">Call No Answer Time</th>
-                                        <th scope="col">Call Disposed Time</th>
-                                        <th scope="col">Total Call Duration</th>
-                                        <th scope="col">Call Connected Duration</th>
-                                        <th scope="col">Call Disconnected Duration</th>
-                                        <th scope="col">Call Ring Duration</th>
-                                        <th scope="col">Caller Name</th>
-                                        <th scope="col">Queue</th>
-                                        <th scope="col">Location </th>
-                                        <th scope="col">Main Disposition</th>
-                                        <th scope="col">SUB Disposition </th>
-                                        <th scope="col">Sip ID</th>
-                                        <th scope="col">Agent Type</th>
-                                        <th scope="col">Agent ID</th>
-                                        <th scope="col">Agent Name</th>
-                                        <th scope="col">Response</th>
-                                        <th scope="col">Callback Date Time </th>
-                                        <th scope="col">Remarks</th>
-                                        <th scope="col">Record Date Time</th>
-                                        <th scope="col">Last DTMF Option</th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                    {
-                                        records.map((ele) => {
-                                            return (
-                                                <tr onClick={() => { getDataof1(ele._id) }}>
-                                                    <td>{ele.id}</td>
-                                                    <td>{ele.CALLID}</td>
-                                                    <td >{ele.AGENTNAME}</td>
-                                                    <td>{ele.AGENTID}</td>
-                                                    <td>{ele.CALLERNUMBER}</td>
-                                                    <td>{ele.CALLSTARTTIME}</td>
-                                                    <td>{ele.CALLPICKEDTIME}</td>
-
-                                                    <td>{ele.CALLDICONNECTEDTIME}</td>
-                                                    <td>{ele.CALLNOANSWERTIME}</td>
-                                                    <td>{ele.CALLDISPOSEDTIME}</td>
-                                                    <td>{ele.TOTALCALLDURATION}</td>
-
-                                                    <td>{ele.CALLCONNECTEDDURATION}</td>
-                                                    <td>{ele.CALLDISCONECTEDDURATION}</td>
-                                                    <td>{ele.CALLRINGDURATION}</td>
-
-                                                    <td>{ele.CallerName}</td>
-                                                    <td>{ele.Queue}</td>
-                                                    <td>{ele.Location}</td>
-
-
-                                                    <td>{ele.mainDisposition}</td>
-                                                    <td>{ele.subDisposition}</td>
-                                                    <td>{ele.sip_id}</td>
-                                                    <td>{ele.agent_type}</td>
-                                                    <td>{ele.agent_id}</td>
-                                                    <td>{ele.agentName}</td>
-
-                                                    <td>{ele.response}</td>
-
-                                                    <td>{ele.CallbackDate}</td>
-                                                    <td>{ele.Remarks}</td>
-                                                    <td>{ele.createdAt}</td>
-                                                    {/* <td>{ele.Location}</td> */}
-                                                    <td>{ele.optionsselct}</td>
-
-
-
-
-                                                    {/* <td>{ele.Disposition}</td>
-                                                    <td>{ele.SubDisposition}</td> */}
-
-                                                </tr>
-                                            )
-                                        })
-                                    }
-
-                                </tbody>
-                            </table>
-
-                        </div>
-                        <Popup record={cdr} show={show} handleClose={handleClose} />
-                    </Grid>
-                ) : (null)
-            }
+           
         </Grid>
 
     </div>)

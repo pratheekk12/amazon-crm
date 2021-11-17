@@ -168,8 +168,9 @@ const ManageAgents = (props) => {
   useEffect(() => {
     
     const interval = setInterval(async () => {
+      if(window.location.href.includes('dashboard')){
      getAllAgents()
-
+      }
     }, 3000);
 
   }, [])
