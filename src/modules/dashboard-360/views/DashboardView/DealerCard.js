@@ -119,7 +119,7 @@ export default function DealerCard(props) {
   }
 
   const [showFullDetailsModal, setShowFullDetailsModal] = useState(false);
-  const SOCKETENDPOINT = 'http:////';
+  
   const getIconColor = () => {
     return 'primary';
   };

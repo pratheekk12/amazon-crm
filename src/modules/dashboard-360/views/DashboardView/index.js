@@ -39,18 +39,17 @@ import CommonAlert from 'src/components/CommonAlert';
 import { connect, useSelector } from 'react-redux';
 import CustomBreadcrumbs from 'src/components/CustomBreadcrumbs';
 import CallIcon from '@material-ui/icons/Call';
-import socketIOClient from 'socket.io-client';
+
 import { setAgentCurrentStatus } from 'src/redux/action';
 import Switch from './switch';
 import { setDistributorOrders } from '../../redux/action';
 import DispositionForm from './DispositionForm';
 
 
-const SOCKETENDPOINT = 'http:///';
-const APIENDPOINT = 'http:///';
+
 const axios = require('axios');
 
-const socket = socketIOClient(SOCKETENDPOINT, { transports: ['websocket'] });
+
 const useStyles = makeStyles(theme => {
   return {
     root: {

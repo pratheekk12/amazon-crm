@@ -24,7 +24,6 @@ import {
 
 import { grey } from '@material-ui/core/colors';
 
-import socketIOClient from 'socket.io-client';
 
 
 import CreateGroup from './Createform'
