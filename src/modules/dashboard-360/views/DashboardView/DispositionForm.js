@@ -138,7 +138,9 @@ const DispositionForm = ({ visibility, customer,getCustomerDetails,setCurrentrec
     console.log(data, "form data")
 
       data.AgentObject_ID = localStorage.getItem('Agent_Object_ID')
-   
+      data.Agent_Name =localStorage.getItem('AgentName')
+      data.Agent_SIP = localStorage.getItem('AgentSIPID')
+      data.Customer_Phone = localStorage.getItem('CallerNumber')
         // handleBreak()
 
         const id = localStorage.getItem('Interaction_id')

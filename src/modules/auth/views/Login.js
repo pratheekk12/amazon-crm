@@ -262,6 +262,7 @@ function Login({ setLoggedInMain, setAccountTypeMain, setUserDetailsMain }) {
             if (myObj.user.role === 'agent') {
               localStorage.setItem('AgentSIPID', res.data.userData.id);
               localStorage.setItem('Agent_Object_ID', res.data.userData._id)
+              localStorage.setItem('AgentName',res.data.userData.name)
               // localStorage.setItem('role', 'Admin')
               // localStorage.setItem('Queue', res.data.userData.Queue)
             } else {
