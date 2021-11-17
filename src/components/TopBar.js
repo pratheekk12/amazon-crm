@@ -29,6 +29,7 @@ import { connect } from 'react-redux';
 import Axios from 'axios';
 import { SET_SEARCH_DISTRIBUTOR } from 'src/redux/constants';
 import { changeAgentStatus } from 'src/modules/dashboard-360/views/functions';
+import Drawer from './Drawer'
 
 import {
 
@@ -286,53 +287,11 @@ const TopBar = ({
           )}
 
 
-          {/* {
-            localStorage.getItem('role') === 'admin' ? (
-              <Tooltip title="Campaign">
-                <IconButton color="inherit">
-                  <Link to='/campaign' className="color-white"><Typography>Campaign</Typography></Link>
-                </IconButton>
-              </Tooltip>
-            ) : (null)
-          }
-          {
-            localStorage.getItem('role') === 'admin' ? (
-              <Tooltip title="IVR Campaign">
-                <IconButton color="inherit">
-                  <Link to='/ivrcampaign' className="color-white"><Typography>IVR Campaign</Typography></Link>
-                </IconButton>
-              </Tooltip>
-            ) : (null)
-          }
-          {
-            localStorage.getItem('role') === 'admin' ? (
-              <Tooltip title="Campaign">
-                <IconButton color="inherit">
-                  <Link to='/manageagents' className="color-white"><Typography>manageAgents</Typography></Link>
-                </IconButton>
-              </Tooltip>
-            ) : (null)
-          }
-          {
-            localStorage.getItem('role') === 'admin' ? (
-              <Tooltip title="IVR Campaign">
-                <IconButton color="inherit">
-                  <Link to='/interactionreport' className="color-white"><Typography>Interaction Report</Typography></Link>
-                </IconButton>
-              </Tooltip>
-            ) : (null)
-          }
-          {
-            localStorage.getItem('role') === 'admin' ? (
-              <Tooltip title="IVR Campaign">
-                <IconButton color="inherit">
-                  <Link to='/agentPerformance' className="color-white"><Typography>Agent Performance</Typography></Link>
-                </IconButton>
-              </Tooltip>
-            ) : (null)
-          } */}
-
-        <Tooltip title="Logout">
+         {
+           localStorage.getItem('role') === 'admin' && <Typography><Drawer/></Typography>
+         }
+        
+        <Tooltip title="logo">
             <IconButton color="inherit" onClick={() => logoutUser()}>
               <img src="/static/grassrootslogo.png" height="2px" width="175"/>
             </IconButton>
