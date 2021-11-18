@@ -12,7 +12,7 @@ export const AMI = '/otp_ami/ami'
 // export const CAMPAIGN_REPORT = '/fileupload'
 // export const UPLOAD_FILE = '/fileupload'
 
-// export const AGENT_PERFORMANCE = '/agentservice'
+export const AGENT_PERFORMANCE = '/agentservice'
 
 
 
