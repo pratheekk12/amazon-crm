@@ -6,11 +6,11 @@ export const AUTH = '/otp_auth/api'
 export const AGENT_SERVICE = 'otp_agentservice/api'
 export const AMI = '/otp_ami/ami'
 
-// export const SAVE_DISPOSITION = '/'
+export const SAVE_DISPOSITION = '/'
 
-// export const CAMPAIGN = '/fileupload'
-// export const CAMPAIGN_REPORT = '/fileupload'
-// export const UPLOAD_FILE = '/fileupload'
+export const CAMPAIGN = '/fileupload'
+export const CAMPAIGN_REPORT = '/fileupload'
+export const UPLOAD_FILE = '/fileupload'
 
 export const AGENT_PERFORMANCE = '/agentservice'
 
