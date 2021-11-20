@@ -13,6 +13,7 @@ import ivrcampaign from '../modules/telephony/views/dashboard/ivrcampaign'
 import manageagents from 'src/modules/telephony/views/dashboard/Auto-report/manageagents'
 import agentPerformance from 'src/modules/telephony/views/dashboard/Auto-report/agentperformance'
 import interactionreport from 'src/modules/telephony/views/dashboard/Auto-report/interactionreport'
+import CdrReport from 'src/modules/telephony/views/dashboard/Auto-report/cdrReports.js'
 
 export const dash360 = React.lazy(() =>
   import('src/modules/dashboard-360/views')
@@ -107,6 +108,11 @@ export default [
   {
     path: '/interactionreport',
     component: interactionreport,
+    requiresAuth: true
+  },
+  {
+    path: '/cdr_Reports',
+    component: CdrReport,
     requiresAuth: true
   },
 

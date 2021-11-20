@@ -203,7 +203,7 @@ const TopBar = ({
       window.location.reload()
     }
 
-    if (localStorage.getItem('callStatus') === 'AgentDisposed' || localStorage.getItem('callStatus') === 'LoggedIn' || localStorage.getItem('callStatus') === 'BREAKOUT' || localStorage.getItem('callStatus') === 'BREAKIN') {
+    
       var axios = require('axios');
       var data = JSON.stringify({ "Event": "LoggedOut" });
 
@@ -261,7 +261,7 @@ const TopBar = ({
         .catch(function (error) {
           console.log(error);
         });
-    }
+    
   }
   var test = "#0040ff"
   return (

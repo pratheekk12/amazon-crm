@@ -162,22 +162,26 @@ export default function CustomizedSwitches(props) {
         console.log('handleChange', event.target.name)
         console.log('handleChange', event.target.checked)
         setState({ ...state, [event.target.name]: event.target.checked });
-        if (event.target.name === 'checkedA') {
+        if (event.target.name === 'checkedB') {
             // props.breakService('test')
+            
             if (event.target.checked) {
+              
+                props.removeFromQueue()
+                console.log("break in")
+               
                 localStorage.setItem('AgentType', 'Outbound')
-                props.removeFromQueue(`SIP/${localStorage.getItem('AgentSIPID')}`, 5003)
                 // setState({ ...state, ['checkedB']: true });
             } else {
                 localStorage.setItem('AgentType', 'Inbound')
-                props.addToQueue(`SIP/${localStorage.getItem('AgentSIPID')}`, 5003);
+                props.addToQueue();
             }
 
 
         }
-        if (event.target.name === 'checkedB') {
-            props.breakService()
-        }
+        // if (event.target.name === 'checkedB') {
+        //     props.breakService()
+        // }
     };
 
     return (

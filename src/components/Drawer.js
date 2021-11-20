@@ -50,7 +50,8 @@ export default function TemporaryDrawer() {
       <List>
       <ListItem button >
         <ListItemIcon><MailIcon /></ListItemIcon>
-        <ListItemText primary={'Manage Agents'} />
+        <Link to="/dashboard"><ListItemText primary={'Manage Agents'} /></Link>
+        {/* <ListItemText primary={'Manage Agents'} /> */}
       </ListItem><Divider />
       <ListItem button >
         <ListItemIcon><MailIcon /></ListItemIcon>
@@ -58,7 +59,9 @@ export default function TemporaryDrawer() {
       </ListItem><Divider />
       <ListItem button >
         <ListItemIcon><MailIcon /></ListItemIcon>
-        <ListItemText primary={'CDR Report'} />
+        <Link to="/cdr_Reports"><ListItemText primary={'CDR Report'} /></Link>
+        
+        {/* <ListItemText primary={'CDR Report'} /> */}
       </ListItem><Divider /> 
       </List>
     </div>

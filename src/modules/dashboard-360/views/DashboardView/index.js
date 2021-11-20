@@ -44,6 +44,10 @@ import { setAgentCurrentStatus } from 'src/redux/action';
 import Switch from './switch';
 import { setDistributorOrders } from '../../redux/action';
 import DispositionForm from './DispositionForm';
+import OpenTicketsTable from './openTicketsTable'
+import Tabs from 'src/components/L2Tabs.js'
+import L2Dispositionform from './L2DispositionForm'
+
 
 
 
@@ -137,6 +141,10 @@ const Dashboard = ({
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const [outbound,setOutbound]=useState(null)
+  const [l2AccountID,setL2AccountID] = ("")
+  const [callInProgress,setCallProgress]= useState(false)
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -156,12 +164,6 @@ const Dashboard = ({
   const [currentCall, setCurrentCall] = useState({
     callStatus: '',
     callUniqueId: '',
-    // callType: '',
-
-    // callDetails: '',
-    // callDispositionStatus: '',
-    // callerNumber: '',
-    // breakStatus: ''
   });
   const [user, setUserDetails] = useState({
     userType: 'agent'
@@ -174,8 +176,65 @@ const Dashboard = ({
   const [ALF, setALF] = useState([]);
   const [DLF, setDLF] = useState([]);
   const [disForm, setdisForm] = useState({});
+  const [records,setRecords]= useState([])
 
   // console.log(user1)
+
+  
+  const callCustomer=async ()=>{
+    await axios.get(`${AMI}/actions/originatecall`, {
+      params: {
+        sipAgentID: `SIP/${localStorage.getItem('AgentSIPID')}`,
+        NumbertobeCalled: '0' + localStorage.getItem('L2Caller'),
+        Account:localStorage.getItem('L2AccountID')
+      }
+    })
+    .then((res)=>{
+     console.log(res,"originate")
+      localStorage.setItem('callStarttime',new Date())
+      setCallProgress(true)
+      let at=parseInt(localStorage.getItem('Attempt'))+1
+        console.log(at,"attempt")
+        changeStatus("in-progress",at)
+     
+    })
+    .catch((err)=>{
+      console.log(err.message)
+    })
+   
+  }
+
+
+  const getAllOpenTickets =()=>{
+    axios.get(`${AGENT_SERVICE}/interactions/getAllOpenTickets`)
+        .then((response)=>{
+           
+                let i=0;
+                let finalData = []
+                response.data.records.map((ele)=>{
+                    i=i+1;
+                    ele.L1_Interaction.id = i
+                    ele.L1_Interaction.L2Status = ele.L2Status
+                    ele.L1_Interaction.Attempt=ele.Attempt
+                    ele.L1_Interaction.L2ID=ele.L2_AccountCode
+                    delete ele.L1_Interaction.AgentObject_ID
+                    delete ele.L1_Interaction.Agent_SIP
+                    finalData.push(ele.L1_Interaction)
+                })
+                
+                setRecords(finalData)
+            
+            
+        })
+        .catch((err)=>{
+            alert(`Error in fetching Tickets -${err.message} `)
+        })
+}
+
+  const customerCalled =()=>{
+    setCallProgress(false)
+  }
+
 
   function getDLF() {
 
@@ -195,49 +254,73 @@ const Dashboard = ({
   }
 
   function setCurrentCallDetails(
-    // callStatusId,
-    // callUniqueId,
-    // callType,
     callStatus,
-    // callEvent,
-    // callDispositionStatus,
-    // callerNumber,
-    // breakStatus
   ) {
     setCurrentCall({
-      // callStatusId,
-      // callUniqueId,
-      // callType,
       callStatus,
-      // callEvent,
-      // callDispositionStatus,
-      // callerNumber,
-      // breakStatus
     });
-    // localStorage.setItem('callStatusId', callStatusId);
-    // localStorage.setItem('callUniqueId', callUniqueId);
-    // localStorage.setItem('callType', callType);
     localStorage.setItem('callStatus', callStatus);
-    // localStorage.setItem('Interaction_ID', callUniqueId)
-    // localStorage.setItem('callEvent', callEvent);
-    // localStorage.setItem('callDispositionStatus', callDispositionStatus);
-    // localStorage.setItem('callerNumber', callerNumber);
-    // localStorage.setItem('breakStatus', breakStatus);
   }
 
-  function addToQueue(agentId, queue) {
+  function addToQueue() {
+    var axios = require('axios');
+    var config = {
+      method: 'get',
+      url: `${AMI}/actions/break?Queue=${localStorage.getItem('Queue')}&Interface=SIP%2F${localStorage.getItem('AgentSIPID')}&Reason=BREAKOUT&Break=false`,
+      headers: {}
+    };
 
+    axios(config)
+      .then(function (response) {
+        console.log((response.data));
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
-  function removeFromQueue(agentId, queue) {
+  function removeFromQueue() {
+    var axios = require('axios');
+      var config = {
+        method: 'get',
+        url: `${AMI}/actions/break?Queue=${localStorage.getItem('Queue')}&Interface=SIP%2F${localStorage.getItem('AgentSIPID')}&Reason=BREAKIN&Break=true`,
+        headers: {}
+      };
 
+      axios(config)
+        .then(function (response) {
+          console.log((response.data));
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
   }
-  function makeCall() {
+  
+  
 
-  }
+  const changeStatus=async(status,attempt)=>{
 
-  function updateAgentCallStatus(updateData) {
+    const data={
+     "id":localStorage.getItem('L2AccountID'),
+     "status":status,
+     "attempt":attempt
+   }
 
-  }
+   console.log(attempt,"change required")
+   await axios.post(`${AGENT_SERVICE}/interactions/changeStatus`,data)
+    .then((res)=>{
+      console.log(res.data,"status ************************************")
+      getAllOpenTickets()
+    })
+    .catch((err)=>{
+      console.log(err)
+    })
+ }
+
+ useEffect(()=>{
+  getAllOpenTickets()
+},[])
+
+
 
   function getAgentCallStatus(agentSipID) {
     // console.log('calling the', agentSipID);
@@ -328,11 +411,12 @@ const Dashboard = ({
   useEffect(() => {
     const agentSipID = localStorage.getItem('Agent_Object_ID')
     const interval = setInterval(async () => {
-      const GET_CURRENT_STATUS_BY_AGENT_SIP_ID = `${AGENT_SERVICE}/agents/${localStorage.getItem('Agent_Object_ID')}`;
-      const getCurrentStatus = await axios.get(GET_CURRENT_STATUS_BY_AGENT_SIP_ID);
-      console.log('getCurrentStatus', getCurrentStatus)
-      getAgentCallStatus(agentSipID)
-
+      if(localStorage.getItem('AgentType')){
+        const GET_CURRENT_STATUS_BY_AGENT_SIP_ID = `${AGENT_SERVICE}/agents/${localStorage.getItem('Agent_Object_ID')}`;
+        const getCurrentStatus = await axios.get(GET_CURRENT_STATUS_BY_AGENT_SIP_ID);
+        console.log('getCurrentStatus', getCurrentStatus)
+        getAgentCallStatus(agentSipID)
+      }
     }, 3000);
 
   }, [])
@@ -392,106 +476,185 @@ const Dashboard = ({
       });
   }
 
+  const changeEvent =(event)=>{
+    var axios = require('axios');
+    var data = JSON.stringify({ "Event": event });
 
+    var config = {
+      method: 'put',
+      url: `${AGENT_SERVICE}/agents/${localStorage.getItem('Agent_Object_ID')}`,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: data
+    };
+
+    axios(config)
+      .then(function (response) {
+        console.log(JSON.stringify(response.data), "status changed");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  const changeAgentType =()=>{
+    if(localStorage.getItem('AgentType') === 'Inbound'){
+      removeFromQueue()
+      localStorage.setItem('AgentType','Outbound')
+      changeEvent("Outbound")
+      getAllOpenTickets()
+     
+
+    }else{
+      addToQueue()
+      localStorage.setItem('AgentType','Inbound')
+      changeEvent("LoggedIn")
+    }
+  }
+
+
+const clearScreen=()=>{
+  setCallProgress(false)
+  setOutbound(null)
+  
+}
 
   return !loadingDetails ? (
     <div style={{ position: 'relative' }}>
       {
-        localStorage.getItem('role') === 'agent' ? (
-          <div>
-            <Box
-              alignItems="center"
-              display="flex"
-              className={`${classes.timerComp} ${classes.callWrapper} ${classes.callInbound}`}
-            >
-              {
-                currentCall.callStatus === 'AgentCalled' ? (<div>
-                  <CallIcon />
-            &nbsp;
-                  <Typography display="inline">
-                    {/* {localStorage.getItem('callerNumber')} */}
-          Call Ringing
-        </Typography>
-                </div>) : null
-              }
-              {
-                currentCall.callStatus === 'AgentConnect' ? (<div>
-                  <CallIcon />
-            &nbsp;
-                  <Typography display="inline">
-                    {/* {localStorage.getItem('callerNumber')} */}
-                    {localStorage.getItem('CallerNumber')}-Call in Progress
-        </Typography>
-                </div>) : null
-              }
-              {
-                currentCall.callStatus === 'AgentComplete' ? (<div>
-                  <CallIcon />
-            &nbsp;
-                  <Typography display="inline">
-                    {/* {localStorage.getItem('callerNumber')} */}
-                    {localStorage.getItem('CallerNumber')}- Call Disconnected
-        </Typography>
-                </div>) : null
-              }
-              {
-                currentCall.callStatus === 'AgentDisposed' || currentCall.callStatus === 'LoggedIn' || currentCall.callStatus === 'BREAKOUT' ? (<div>
-                  <CallIcon />
-            &nbsp;
-                  <Typography display="inline">
-                    {/* {localStorage.getItem('callerNumber')} */}
-         Free for next call
-        </Typography>
-                </div>) : null
-              }
-              {
-                currentCall.callStatus === 'BREAKIN' ? (<div>
-                  <CallIcon />
-            &nbsp;
-                  <Typography display="inline">
-                    {/* {localStorage.getItem('callerNumber')} */}
-                  You are in Break
-        </Typography>
-                </div>) : null
-              }
-              {
-                currentCall.callStatus === 'AgentRingNoAnswer' ? (<div>
-                  <CallIcon />
-            &nbsp;
-                  <Typography display="inline">
-                    {/* {localStorage.getItem('callerNumber')} */}
-         Call Not Answered
-        </Typography>
-                </div>) : null
-              }
+        localStorage.getItem('role') === 'agent'  ? (
+         <div>
+           {
+             localStorage.getItem('AgentType') === 'Inbound' &&  <Box
+             alignItems="center"
+             display="flex"
+             className={`${classes.timerComp} ${classes.callWrapper} ${classes.callInbound}`}
+           >
+             {
+               currentCall.callStatus === 'AgentCalled' ? (<div>
+                 <CallIcon />
+           &nbsp;
+                 <Typography display="inline">
+                   {/* {localStorage.getItem('callerNumber')} */}
+         Call Ringing
+       </Typography>
+               </div>) : null
+             }
+             {
+               currentCall.callStatus === 'AgentConnect' ? (<div>
+                 <CallIcon />
+           &nbsp;
+                 <Typography display="inline">
+                   {/* {localStorage.getItem('callerNumber')} */}
+                   {localStorage.getItem('CallerNumber')}-Call in Progress
+       </Typography>
+               </div>) : null
+             }
+             {
+               currentCall.callStatus === 'AgentComplete' ? (<div>
+                 <CallIcon />
+           &nbsp;
+                 <Typography display="inline">
+                   {/* {localStorage.getItem('callerNumber')} */}
+                   {localStorage.getItem('CallerNumber')}- Call Disconnected
+       </Typography>
+               </div>) : null
+             }
+             {
+               currentCall.callStatus === 'AgentDisposed' || currentCall.callStatus === 'LoggedIn' || currentCall.callStatus === 'BREAKOUT' ? (<div>
+                 <CallIcon />
+           &nbsp;
+                 <Typography display="inline">
+                   {/* {localStorage.getItem('callerNumber')} */}
+        Free for next call
+       </Typography>
+               </div>) : null
+             }
+             {
+               currentCall.callStatus === 'BREAKIN' ? (<div>
+                 <CallIcon />
+           &nbsp;
+                 <Typography display="inline">
+                   {/* {localStorage.getItem('callerNumber')} */}
+                 You are in Break
+       </Typography>
+               </div>) : null
+             }
+             {
+               currentCall.callStatus === 'AgentRingNoAnswer' ? (<div>
+                 <CallIcon />
+           &nbsp;
+                 <Typography display="inline">
+                   {/* {localStorage.getItem('callerNumber')} */}
+        Call Not Answered
+       </Typography>
+               </div>) : null
+             }
 
-            </Box>
+           </Box>
+           }
+           
+          
             <CustomBreadcrumbs />
             <Page className={classes.root} title="Dashboard">
               <Container maxWidth={false}>
               <Grid container spacing={3}>
                   <Grid item lg={4} md={6} xs={12}>
+                    {
+                      localStorage.getItem('AgentType') === 'Inbound' && <Grid item>
+                      
+                      {currentCall.callStatus === 'AgentDisposed' || currentCall.callStatus === 'LoggedIn' || currentCall.callStatus === 'BREAKOUT' || currentCall.callStatus === 'BREAKIN' && localStorage.getItem('Agent') ? (<Button variant="contained" color="primary" onClick={breakService}>{localStorage.getItem('Break_Status') === 'OUT' ? ('Take a Break') : ('You are in break')}</Button>) : (null)
 
-                    <Grid item>
-                      {currentCall.callStatus === 'AgentDisposed' || currentCall.callStatus === 'LoggedIn' || currentCall.callStatus === 'BREAKOUT' || currentCall.callStatus === 'BREAKIN' ? (<Button variant="contained" color="primary" onClick={breakService}>{localStorage.getItem('Break_Status') === 'OUT' ? ('Take a Break') : ('You are in break')}</Button>) : (null)
+                      }&nbsp;
+                      
+                    </Grid>
+                    }
+                    </Grid>
+                    <Grid  item lg={8} md={8} xs={8}> </Grid>
+                    
+                    <Grid  item lg={4} md={6} xs={6}>
+                      {<Button variant="contained" color="primary" onClick={changeAgentType}>{localStorage.getItem('AgentType') === 'Inbound' ? ('Switch to Outbound') : ('Switch to Inbound')}</Button>
 
                       }
 
+                   
                     </Grid>
-                  </Grid>
+                    <Grid item lg={4} md={6} xs={6}></Grid>
+                    {
+                      outbound && !callInProgress && <Grid item lg={4} md={6} xs={6}>
+                      <Button variant="contained" color="primary" onClick={callCustomer}><CallIcon/> &nbsp;call customer</Button>
+                      </Grid>
+                    }
+                    
+                    
+                    
+                    <Grid item lg={12} md={12} xs={12}></Grid>
+                    <Grid item>
+                      
+                      
+                    </Grid>
+                   
+                 
                 </Grid>
                 
                 <Grid container spacing={3}>
-                  <Grid item lg={6} md={6} xs={12}>
-                  <Card>
-                      <CardHeader title="Customer Details" />
-                      <Divider />
-                    </Card>
-                  </Grid>
-
-                  <Grid item lg={6} md={6} xs={12}>
-
+                  {
+                    localStorage.getItem('AgentType') === 'Inbound' && <Grid item lg={6} md={6} xs={12}>
                     <Card>
+                        <CardHeader title="Customer Details" />
+                        <Divider />
+                      </Card>
+                    </Grid>
+                    }
+                    {
+                      outbound &&  <Grid item lg={6} md={6} xs={12}>
+                      <Tabs customer={outbound}/> 
+                    </Grid>
+                    }
+                  <Grid item lg={6} md={6} xs={12}>
+                    {
+                      localStorage.getItem('AgentType') === 'Inbound' &&  <Card>
                       <CardHeader title="Disposition Details" />
                       <Divider />
                       {currentCall.callStatus !== 'AgentDisposed' &&
@@ -534,20 +697,37 @@ const Dashboard = ({
                         </CardContent>
                       ) : (<></>)}
                     </Card>
+                    }
+                   {
+                     localStorage.getItem('AgentType') === 'Outbound' &&  callInProgress && <Card>
+                     <CardHeader title="Disposition Details" />
+                     <Divider />
+                       <L2Dispositionform clearScreen={clearScreen} changeStatus={changeStatus}/>
+                   </Card>
+                   }
+                   
                   </Grid>
-                  <Grid item lg={6} md={6} xs={12}>
-                  <Card>
-                      <CardHeader title="Customer last Three Interactions" />
-                      <Divider />
-                    </Card>
-                  </Grid>
+                  {
+                    localStorage.getItem('AgentType') === 'Inbound' &&  <Grid item lg={6} md={6} xs={12}>
+                    <Card>
+                        <CardHeader title="Customer last Three Interactions" />
+                        <Divider />
+                      </Card>
+                    </Grid>
+                  }
+                 {
+                   !callInProgress && localStorage.getItem('AgentType') === 'Outbound' &&  <Grid item lg={12} md={12} xs={12}>
+                   <OpenTicketsTable setOutbound={setOutbound} setL2AccountID={setL2AccountID} records={records} getAllOpenTickets ={getAllOpenTickets}/>
+               </Grid>
+                 }
+                
 
                 </Grid>
 
               </Container>
             </Page>
 
-            <Dialog
+            {/* <Dialog
               fullScreen={fullScreen}
               open={open}
               onClose={handleClose}
@@ -567,7 +747,7 @@ const Dashboard = ({
                   Make A Call
           </Button>
               </DialogActions>
-            </Dialog>
+            </Dialog> */}
           </div>
         ) : (<div>
 

@@ -61,10 +61,10 @@ const ManageAgents = (props) => {
       console.log(response.data)
       setAgents(response.data)
       setAgentStatus(response.data.filter((ele)=>{
-        return ele.Event !== 'LoggedOut'
+        return ele.Event !== 'LoggedOut' && ele.Event !== '0'
       }))
       setonBreakAgents(response.data.filter((ele)=>{
-        return ele.Paused === '1'
+        return ele.Paused === '1' && ele.Event !== 'LoggedOut'
       }))
 
 

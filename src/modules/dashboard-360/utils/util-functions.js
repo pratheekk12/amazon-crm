@@ -1740,9 +1740,6 @@ export function getDispositionFormQuestions5() {
               questionName: 'QA_2218',
               option: [
                 {
-                  label: 'Item missing',
-                },
-                {
                   label: 'Delivery related',
                 },
                 {

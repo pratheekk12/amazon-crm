@@ -34,7 +34,7 @@ function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-const DispositionForm = ({ visibility, customer,getCustomerDetails,setCurrentrecord,breakService }) => {
+const DispositionForm = ({ visibility, customer,clearScreen,changeStatus,getAllOpenTickets }) => {
   const userData = useSelector(state => state.userData);
 
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -134,44 +134,39 @@ const DispositionForm = ({ visibility, customer,getCustomerDetails,setCurrentrec
       });
   }
 
-  const handleSubmitDisposition = (data) => {
-    console.log(data, "form data")
+  const handleSubmitDisposition = (data1) => {
+    console.log(data1, "form data")
+    data1.agentID = localStorage.getItem('Agent_Object_ID')
+    data1.agent_Sip = localStorage.getItem('AgentSIPID')
+    data1.Agent_Name = localStorage.getItem('AgentName')
+    
+    try {
+        const data ={
+          "id": localStorage.getItem('L2AccountID'),
+          "disposition":data1,
+          "attempt":localStorage.getItem('Attempt')
+        }
 
-      data.AgentObject_ID = localStorage.getItem('Agent_Object_ID')
-      data.Agent_Name =localStorage.getItem('AgentName')
-      data.Agent_SIP = localStorage.getItem('AgentSIPID')
-      data.Customer_Phone = localStorage.getItem('CallerNumber')
-        // handleBreak()
-
-        const id = localStorage.getItem('Interaction_id')
-        //console.log(id, "agentid")
-        console.log(data,"agent service api")
-        var axios = require('axios');
-         
+        console.log(data,"final data")
   
-        var config = {
-          method: 'put',
-          url: `${AGENT_SERVICE}/interactions/${id}`,
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          data: { "updateData": {
-            "CRMDISPOSITION" :data
-          }
-          }
-        };
+        axios.put(`${AGENT_SERVICE}/interactions/updateL2Interaction`,data );
+        alert(`Form Submitted Successfully`)
+        
+        let at = parseInt(localStorage.getItem('Attempt'))+1
+        changeStatus(data1.status,at)
+        
+       
+        localStorage.removeItem('L2AccountID')
+        localStorage.removeItem('Attempt')
+        clearScreen()
+        // getAllOpenTickets()
   
-        axios(config)
-          .then(function (response) {
-            console.log(response, "response")
-            
-          })
-          .catch(function (error) {
-            console.log(error);
-          
-          });
-          changeAgentStatus("AgentDisposed")
-          breakService()
+      } catch (err) {
+        alert('Form submission failed');
+        console.log(err.message);
+      }
+    clearScreen()
+     
 
   }
 
@@ -429,8 +424,7 @@ const DispositionForm = ({ visibility, customer,getCustomerDetails,setCurrentrec
                 )}
                 
                      <Grid item container justify="center" alignContent="center">
-                       {
-                         localStorage.getItem('callStatus') === 'AgentComplete' &&  <Button
+                       <Button
                          type="submit"
                          disabled={visibility}
                          color="primary"
@@ -440,21 +434,11 @@ const DispositionForm = ({ visibility, customer,getCustomerDetails,setCurrentrec
                        >
                          Submit
                        </Button>
-                       }
+                     
                  
                 </Grid>
                   
-                {/* <Grid item container justify="center" alignContent="center">
-                  <Button
-                    type="submit"
-                    disabled={visibility}
-                    color="primary"
-                    variant="contained"
-                    size="large"
-                  >
-                    Submit
-                  </Button>
-                </Grid> */}
+              
               </Grid>
             </Form>
           )}
