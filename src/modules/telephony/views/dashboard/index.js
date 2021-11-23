@@ -62,6 +62,11 @@ const ManageAgents = (props) => {
     axios.get(`${AGENT_SERVICE}/agents`)
     .then((response)=>{
       console.log(response.data)
+      let i = 0
+      response.data.map((ele)=>{
+        i=i+1;
+        return ele.id =i
+      })
       setAgents(response.data)
       setAgentStatus(response.data.filter((ele)=>{
         return ele.Event !== 'LoggedOut' && ele.Event !== '0'
@@ -90,6 +95,11 @@ const ManageAgents = (props) => {
   
   const AgentsColumns = [
             {
+              headerName: 'Sl',
+              field: 'id',
+              flex: 0.5
+            },
+            {
                 headerName: 'Name',
                 field: 'name',
                 flex: 0.5
@@ -97,7 +107,7 @@ const ManageAgents = (props) => {
             },
             {
                 headerName: 'SIP ID',
-                field: 'id',
+                field: 'Location',
                 flex: 0.5
             },
 
@@ -120,11 +130,11 @@ const ManageAgents = (props) => {
           flex: 0.5
 
       },
-      {
-          headerName: 'SIP ID',
-          field: 'id',
-          flex: 0.5
-      },
+      // {
+      //     headerName: 'SIP ID',
+      //     field: 'id',
+      //     flex: 0.5
+      // },
 
       {
           headerName: 'Status',
@@ -147,7 +157,7 @@ const ManageAgents = (props) => {
       },
       {
           headerName: 'SIP ID',
-          field: 'id',
+          field: 'Location',
           flex: 0.5
       },
 
@@ -174,7 +184,7 @@ const ManageAgents = (props) => {
       if(window.location.href.includes('dashboard')){
      getAllAgents()
       }
-    }, 3000);
+    }, 6000);
 
   }, [])
 
@@ -283,6 +293,7 @@ const ManageAgents = (props) => {
             </Grid>
     </Grid>
     </Grid>
+   
   </div >)
 }
 
