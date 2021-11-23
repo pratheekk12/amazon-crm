@@ -1,10 +1,10 @@
-export const AUTH = 'http://192.168.3.37:63003/api'
-export const AGENT_SERVICE = 'http://192.168.3.37:63000/api'
-export const AMI = 'http://192.168.3.37:63001/ami'
+//export const AUTH = 'http://192.168.3.37:63003/api'
+//export const AGENT_SERVICE = 'http://192.168.3.37:63000/api'
+//export const AMI = 'http://192.168.3.37:63001/ami'
 
-// export const AUTH = '/otp_auth/api'
-// export const AGENT_SERVICE = 'otp_agentservice/api'
-// export const AMI = '/otp_ami/ami'
+ export const AUTH = '/otp_auth/api'
+ export const AGENT_SERVICE = '/otp_agentservice/api'
+ export const AMI = '/otp_ami/ami'
 
 export const SAVE_DISPOSITION = '/'
 
