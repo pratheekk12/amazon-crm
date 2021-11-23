@@ -22,6 +22,9 @@ import Date from './DaterangeReport'
 import { DataGrid,GridToolbar } from '@material-ui/data-grid';
 import axios from 'axios'
 import {AGENT_SERVICE} from 'src/modules/dashboard-360/utils/endpoints'
+import AddIcon from '@material-ui/icons/Add';
+import Dialog from 'src/modules/telephony/views/dashboard/Auto-report/dialog.js'
+
 
 
 
@@ -175,7 +178,9 @@ const ManageAgents = (props) => {
 
   }, [])
 
-
+  //const date = moment(new Date()).format().slice(0,10);
+  
+  
 
   return (<div>
     <Grid container spacing={3}>
@@ -188,7 +193,7 @@ const ManageAgents = (props) => {
               <Grid item xs={12} sm={12} lg={5}> <b>Manage Agents</b></Grid>
               <Grid item xs={12} sm={12} lg={1}></Grid>
               <Grid item xs={12} sm={12} lg={1}>
-                {/* <Dialog /> */}
+                <Dialog />
               </Grid>
               <Grid item xs={12} sm={12} lg={12}>
                 <DataGrid rows={agents} columns={AgentsColumns} pageSize={5}
