@@ -74,6 +74,7 @@ const OpenTicketsTable =(props)=>{
         localStorage.setItem('Attempt',data.row.Attempt)
         localStorage.setItem('L2AccountID',data.row.L2ID)
         localStorage.setItem('L2Caller',data.row.Customer_Phone_Number)
+        localStorage.setItem('L1_InteractionID',data.row.L1_InteractionID)
     }
     
     return (<div>

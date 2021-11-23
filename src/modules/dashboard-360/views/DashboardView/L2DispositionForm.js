@@ -142,14 +142,15 @@ const DispositionForm = ({ visibility, customer,clearScreen,changeStatus,getAllO
     
     try {
         const data ={
-          "id": localStorage.getItem('L2AccountID'),
+          "id": localStorage.getItem('Interaction_id'),
           "disposition":data1,
-          "attempt":localStorage.getItem('Attempt')
+          "attempt":localStorage.getItem('Attempt'),
+          "L1_InteractionID":localStorage.getItem('L1_InteractionID')
         }
 
         console.log(data,"final data")
   
-        axios.put(`${AGENT_SERVICE}/interactions/updateL2Interaction`,data );
+        axios.post(`${AGENT_SERVICE}/interactions/updateL2Interaction`,data );
         alert(`Form Submitted Successfully`)
         
         let at = parseInt(localStorage.getItem('Attempt'))+1

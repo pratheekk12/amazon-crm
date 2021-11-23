@@ -74,24 +74,24 @@ export default function FullWidthTabs(props) {
        
         getInteraction()
     }
-  },[props])
+  },[])
 
 
 
 
   const getInteraction =()=>{
-    const data={
-        id : props.customer.L2ID
-    }
-   axios.post(`${AGENT_SERVICE}/interactions/getInteractionbyID`,data)
-    .then((response)=>{
-        console.log(response.data)
-        setl2Interaction(response.data[0].attempt)
+  //   const data={
+  //       id : props.customer.L2ID
+  //   }
+  //  axios.post(`${AGENT_SERVICE}/interactions/getInteractionbyID`,data)
+  //   .then((response)=>{
+  //       console.log(response.data)
+  //       setl2Interaction(response.data[0].attempt)
       
-    })
-    .catch((err)=>{
-        alert(`error in fetching outbound Interaction ${err.message}`)
-    })
+  //   })
+  //   .catch((err)=>{
+  //       alert(`error in fetching outbound Interaction ${err.message}`)
+  //   })
   }
 
 //   console.log(props.customer,"l1 interaction")

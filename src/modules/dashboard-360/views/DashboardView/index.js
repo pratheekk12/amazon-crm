@@ -208,7 +208,7 @@ const Dashboard = ({
   const getAllOpenTickets =()=>{
     axios.get(`${AGENT_SERVICE}/interactions/getAllOpenTickets`)
         .then((response)=>{
-           
+                console.log(response.data.records)
                 let i=0;
                 let finalData = []
                 response.data.records.map((ele)=>{
@@ -217,6 +217,7 @@ const Dashboard = ({
                     ele.L1_Interaction.L2Status = ele.L2Status
                     ele.L1_Interaction.Attempt=ele.Attempt
                     ele.L1_Interaction.L2ID=ele.L2_AccountCode
+                    ele.L1_Interaction.L1_InteractionID = ele.L1_InteractionId
                     delete ele.L1_Interaction.AgentObject_ID
                     delete ele.L1_Interaction.Agent_SIP
                     finalData.push(ele.L1_Interaction)
