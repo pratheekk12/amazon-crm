@@ -290,10 +290,10 @@ const TopBar = ({
          {
            localStorage.getItem('role') === 'admin' && <Typography><Drawer/></Typography>
          }
-        
+        <img src="/static/grassrootslogo.png" height="2px" width="175"/>
         <Tooltip title="logo">
-            <IconButton color="inherit" onClick={() => logoutUser()}>
-              <img src="/static/grassrootslogo.png" height="2px" width="175"/>
+            <IconButton color="inherit" >
+              
             </IconButton>
           </Tooltip>
           <Tooltip title="Logout">
