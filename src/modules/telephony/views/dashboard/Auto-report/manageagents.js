@@ -37,7 +37,7 @@ import { propTypes } from 'react-bootstrap/esm/Image';
 import Dialog1 from './updatedialog'
 import Popup from './PopUp'
 import { date } from 'yup';
-import { AGENT_PERFORMANCE } from 'src/modules/dashboard-360/utils/endpoints'
+import { AGENT_PERFORMANCE, AGENT_SERVICE } from 'src/modules/dashboard-360/utils/endpoints'
 
 
 const Inbound = (props) => {
@@ -193,16 +193,21 @@ const Inbound = (props) => {
     }
 
     const getAgents = () => {
-        axios.get(`${AGENT_PERFORMANCE}/agents`)
+        axios.get(`${AGENT_SERVICE}/agents`)
             .then((res) => {
                 console.log(res.data)
                 if (res.data.length > 0) {
+                    let i=0;
+                    res.data.map((ele)=>{
+                        i=i+1;
+                        return ele.id =i
+                    })
                     res.data.map((ele) => {
                         if (ele.Event === 'AgentComplete') {
                             return ele.Event = 'Call Disconnected Not Disposed'
                         } else if (ele.Event === 'LoggedOut') {
                             return ele.Event = 'Logged Out'
-                        } else if (ele.Event === 'BREAKIN') {
+                        } else if (ele.Paused === '1') {
                             return ele.Event = 'On Break'
                         } else if (ele.Event === 'LoggedIn') {
                             return ele.Event = 'Logged In'
@@ -218,6 +223,9 @@ const Inbound = (props) => {
                             return ele.Event = 'Free for Next Call'
                         }
                     })
+
+
+                    
 
 
                     let value;
@@ -237,19 +245,20 @@ const Inbound = (props) => {
                     })
 
                     setAgents(res.data)
-                    const idle1 = agents.filter((ele) => {
+                    const idle1 = res.data.filter((ele) => {
+                        
                         return ele.Event === 'Call Disconnected Not Disposed'
                     })
                     setIdle(idle1)
-                    const break1 = agents.filter((ele) => {
+                    const break1 = res.data.filter((ele) => {
                         return ele.Event === 'On Break'
                     })
                     setBreakdetails(break1)
-                    const agentsFree1 = agents.filter((ele) => {
+                    const agentsFree1 = res.data.filter((ele) => {
                         return ele.Event === 'Free for Next Call'
                     })
                     setAgentsFree(agentsFree1)
-                    const live = agents.filter((ele) => {
+                    const live = res.data.filter((ele) => {
                         return ele.Event === 'On Call'
                     })
                     setLivecalls(live)
@@ -272,6 +281,8 @@ const Inbound = (props) => {
     }, [])
 
     console.log(agents, "agents")
+    console.log(liveCalls,"live calls")
+    console.log(idle,"idle")
 
     const handleClose = () => {
         setShow(false);
@@ -290,7 +301,7 @@ const Inbound = (props) => {
                                 <Grid item xs={6} sm={6} lg={5}> <b>Manage Agents</b></Grid>
                                 <Grid item xs={6} sm={6} lg={1}></Grid>
                                 <Grid item xs={6} sm={6} lg={1}>
-                                    <Dialog />
+                                    
                                 </Grid>
                                 <Grid item xs={6} sm={6} lg={12}>
                                     <DataGrid rows={agents} columns={profilesColumns} pageSize={5}
@@ -310,7 +321,7 @@ const Inbound = (props) => {
                             <Grid container spacing={3} direction="row">
                                 <Grid item xs={6} sm={6} lg={5}></Grid>
                                 <Grid item xs={6} sm={6} lg={5}> <b>Agents Status</b></Grid>
-                                <Grid item xs={6} sm={6} lg={1}></Grid>
+                                <Grid item xs={6} sm={6} lg={1}><Dialog /></Grid>
                                 <Grid item xs={6} sm={6} lg={12}>
                                     <DataGrid rows={agents} columns={agentStatusColumn} pageSize={5}
                                         //rowsPerPageOptions={[5, 20, 50]}

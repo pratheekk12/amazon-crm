@@ -63,6 +63,24 @@ export default function TemporaryDrawer() {
         
         {/* <ListItemText primary={'CDR Report'} /> */}
       </ListItem><Divider /> 
+      <ListItem button >
+        <ListItemIcon><MailIcon /></ListItemIcon>
+        <Link to="/cdr_Reports"><ListItemText primary={'Outbound Tickets'} /></Link>
+        
+        {/* <ListItemText primary={'CDR Report'} /> */}
+      </ListItem><Divider /> 
+      <ListItem button >
+        <ListItemIcon><MailIcon /></ListItemIcon>
+        <Link to="/cdr_Reports"><ListItemText primary={'Outbound Interactions'} /></Link>
+        
+        {/* <ListItemText primary={'CDR Report'} /> */}
+      </ListItem><Divider /> 
+      <ListItem button >
+        <ListItemIcon><MailIcon /></ListItemIcon>
+        <Link to="/cdr_Reports"><ListItemText primary={'Outbound CDR'} /></Link>
+        
+        {/* <ListItemText primary={'CDR Report'} /> */}
+      </ListItem><Divider /> 
       </List>
     </div>
   );
