@@ -30,6 +30,7 @@ import Axios from 'axios';
 import { SET_SEARCH_DISTRIBUTOR } from 'src/redux/constants';
 import { changeAgentStatus } from 'src/modules/dashboard-360/views/functions';
 import Drawer from './Drawer'
+import GRLOGO from './grLogo'
 
 import {
 
@@ -290,12 +291,8 @@ const TopBar = ({
          {
            localStorage.getItem('role') === 'admin' && <Typography><Drawer/></Typography>
          }
-        <img src="/static/grassrootslogo.png" height="2px" width="175"/>
-        <Tooltip title="logo">
-            <IconButton color="inherit" >
-              
-            </IconButton>
-          </Tooltip>
+        
+         <GRLOGO />
           <Tooltip title="Logout">
             <IconButton color="inherit" onClick={() => logoutUser()}>
               <ExitToAppIcon />
