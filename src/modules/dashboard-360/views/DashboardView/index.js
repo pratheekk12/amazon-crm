@@ -47,6 +47,11 @@ import DispositionForm from './DispositionForm';
 import OpenTicketsTable from './openTicketsTable'
 import Tabs from 'src/components/L2Tabs.js'
 import L2Dispositionform from './L2DispositionForm'
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 
 
 
@@ -99,7 +104,11 @@ const useStyles = makeStyles(theme => {
       alignItems: 'center',
       width: '100%',
       padding: theme.spacing(1, 1)
-    }
+    },
+    formControl: {
+      margin: theme.spacing(1),
+      minWidth: 120,
+    },
   };
 });
 
@@ -144,6 +153,7 @@ const Dashboard = ({
   const [outbound,setOutbound]=useState(null)
   const [l2AccountID,setL2AccountID] = ("")
   const [callInProgress,setCallProgress]= useState(false)
+  const [breakType,setBreakType]= useState(null)
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -177,6 +187,7 @@ const Dashboard = ({
   const [DLF, setDLF] = useState([]);
   const [disForm, setdisForm] = useState({});
   const [records,setRecords]= useState([])
+  
 
   // console.log(user1)
 
@@ -237,22 +248,6 @@ const Dashboard = ({
   }
 
 
-  function getDLF() {
-
-  }
-
-  function getALF() {
-
-
-  }
-
-  function getOpenTickets(agentType, status) {
-
-  }
-  function selectedDataForObutbound(data) {
-
-
-  }
 
   function setCurrentCallDetails(
     callStatus,
@@ -354,42 +349,65 @@ const Dashboard = ({
       });
   }
 
-  function breakService() {
-    console.log("called from dispos")
+  const resumeWork =(event)=>{
+    if (localStorage.getItem('Break_Status') === 'IN') {
+      // alert(`i am called`)
     const AgentSIPID = localStorage.getItem('AgentSIPID')
-    if (localStorage.getItem('Break_Status') === 'OUT') {
-      var axios = require('axios');
-      var config = {
-        method: 'get',
-        url: `${AMI}/actions/break?Queue=${localStorage.getItem('Queue')}&Interface=SIP%2F${AgentSIPID}&Reason=BREAKIN&Break=true`,
-        headers: {}
-      };
-
-      axios(config)
-        .then(function (response) {
-          console.log((response.data));
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    } else {
-      var axios = require('axios');
-      var config = {
-        method: 'get',
-        url: `${AMI}/actions/break?Queue=${localStorage.getItem('Queue')}&Interface=SIP%2F${AgentSIPID}&Reason=BREAKOUT&Break=false`,
-        headers: {}
-      };
-
-      axios(config)
-        .then(function (response) {
-          console.log((response.data));
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+    axios.get(`${AMI}/actions/break?Queue=${localStorage.getItem('Queue')}&Interface=SIP%2F${AgentSIPID}&Reason=BREAKOUT&Break=false`)
+      .then((res)=>{
+        console.log(res.data)
+        changeEventforBreak("BREAKOUT")
+        setBreakType("")
+      })
+      .catch((err)=>{
+        console.log(err.message)
+      })
     }
-
   }
+
+  const TakeaBreak =(event)=>{
+    if (localStorage.getItem('Break_Status') === 'OUT') {
+      //alert(`i am called`)
+      const AgentSIPID = localStorage.getItem('AgentSIPID')
+      console.log(" i am here")
+    axios.get(`${AMI}/actions/break?Queue=${localStorage.getItem('Queue')}&Interface=SIP%2F${AgentSIPID}&Reason=${breakType}&Break=true`)
+      .then((res)=>{
+        console.log(res.data)
+        changeEventforBreak("BREAKIN")
+      })
+      .catch((err)=>{
+        console.log(err.message)
+      })
+    }
+  }
+
+  const handlebreakChange =(e)=>{
+    setBreakType(e.target.value)
+  }
+
+  // function breakService() {
+  //   console.log("called from dispos")
+  //   const AgentSIPID = localStorage.getItem('AgentSIPID')
+  //   if (localStorage.getItem('Break_Status') === 'OUT') {
+  //     var axios = require('axios');
+  //     var config = {
+  //       method: 'get',
+  //       url: `${AMI}/actions/break?Queue=${localStorage.getItem('Queue')}&Interface=SIP%2F${AgentSIPID}&Reason="TEABREAK"&Break=true`,
+  //       headers: {}
+  //     };
+
+  //     axios(config)
+  //       .then(function (response) {
+  //         console.log((response.data));
+  //       })
+  //       .catch(function (error) {
+  //         console.log(error);
+  //       });
+  //   } else {
+      
+  //   }
+
+  // }
 
   useEffect(() => {
 
@@ -425,14 +443,14 @@ const Dashboard = ({
 
 
   useEffect(() => {
-    getALF();
+   
 
 
     if (
       currentCall.callerNumber !== '' &&
       currentCall.callDispositionStatus === 'NotDisposed'
     ) {
-      getDLF();
+      // getDLF();
 
     }
     // getALF();
@@ -477,13 +495,35 @@ const Dashboard = ({
       });
   }
 
+  const changeEventforBreak =(event)=>{
+    var axios = require('axios');
+    var data = JSON.stringify({ "Event": event });
+
+    var config = {
+      method: 'put',
+      url: `${AGENT_SERVICE}/agents1/${localStorage.getItem('Agent_Object_ID')}`,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: data
+    };
+
+    axios(config)
+      .then(function (response) {
+        console.log(JSON.stringify(response.data), "status changed");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
   const changeEvent =(event)=>{
     var axios = require('axios');
     var data = JSON.stringify({ "Event": event });
 
     var config = {
       method: 'put',
-      url: `${AGENT_SERVICE}/agents/${localStorage.getItem('Agent_Object_ID')}`,
+      url: `${AGENT_SERVICE}/agents1/${localStorage.getItem('Agent_Object_ID')}`,
       headers: {
         'Content-Type': 'application/json'
       },
@@ -602,19 +642,48 @@ const clearScreen=()=>{
               <Container maxWidth={false}>
               <Grid container spacing={3}>
                   <Grid item lg={4} md={6} xs={12}>
+                  
                     {
-                      localStorage.getItem('AgentType') === 'Inbound' && <Grid item>
+                      localStorage.getItem('AgentType') === 'Inbound' &&  localStorage.getItem('Break_Status') === 'OUT' && <Grid item>
+                        <FormControl variant="outlined" className={classes.formControl}>
+                          <InputLabel id="demo-simple-select-outlined-label">Break</InputLabel>
+                          <Select
+                            labelId="demo-simple-select-outlined-label"
+                            id="demo-simple-select-outlined"
+                            value={breakType}
+                            onChange={handlebreakChange}
+                            label="Break"
+                           
+                          >
+                            <MenuItem value="">
+                             Select type of break
+                            </MenuItem>
+                            <MenuItem value="Tea Break">Tea Break</MenuItem>
+                            <MenuItem value="Lunch Break">Lunch Break</MenuItem>
+                            <MenuItem value="Other Break">Other Break</MenuItem>
+                          </Select>
+                        </FormControl>
+                      {breakType && <>
                       
-                      {currentCall.callStatus === 'AgentDisposed' || currentCall.callStatus === 'LoggedIn' || currentCall.callStatus === 'BREAKOUT' || currentCall.callStatus === 'BREAKIN' && localStorage.getItem('Agent') ? (<Button variant="contained" color="primary" onClick={breakService}>{localStorage.getItem('Break_Status') === 'OUT' ? ('Take a Break') : ('You are in break')}</Button>) : (null)
+                      {currentCall.callStatus === 'AgentDisposed' || currentCall.callStatus === 'LoggedIn' || currentCall.callStatus === 'BREAKOUT' || currentCall.callStatus === 'BREAKIN' && localStorage.getItem('Agent')  ? (<Button variant="contained" color="primary" onClick={TakeaBreak}>Take Break </Button>) : (null)
 
                       }&nbsp;
                       
+                      </>}
+
                     </Grid>
+                    }
+
+                    {
+                      localStorage.getItem('Break_Status') === 'IN' && currentCall.callStatus !== 'AgentConnect' && currentCall.callStatus !== 'AgentComplete' && currentCall.callStatus !== 'AgentCalled' &&  <Grid item lg={4} md={6} xs={12}>
+                        <Button variant="contained" color="primary" onClick={resumeWork} >Resume Work </Button>
+                      </Grid>
                     }
                     </Grid>
                     <Grid  item lg={8} md={8} xs={8}> </Grid>
                     
                     <Grid  item lg={4} md={6} xs={6}>
+                     
                       {<Button variant="contained" color="primary" onClick={changeAgentType}>{localStorage.getItem('AgentType') === 'Inbound' ? ('Switch to Outbound') : ('Switch to Inbound')}</Button>
 
                       }
@@ -661,7 +730,7 @@ const clearScreen=()=>{
                       {currentCall.callStatus !== 'AgentDisposed' &&
                         user.userType === 'agent' && currentCall.callStatus !== 'LoggedIn' && currentCall.callStatus !== 'AgentRingNoAnswer' && currentCall.callStatus !== 'BREAKOUT' && currentCall.callStatus !== 'BREAKIN' && currentCall.callStatus !== 'LoggedOut' && currentCall.callStatus !== '0' ? (<CardContent>
                           <DispositionForm
-                            breakService={breakService}
+                            breakService={resumeWork}
                             agentSipID={agent.AgentSipId}
                             DLF={DLF}
                             setCurrentCallDetails={setCurrentCallDetails}

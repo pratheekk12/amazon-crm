@@ -216,7 +216,7 @@ const TopBar = ({
         data: data
       };
 
-      axios(config)
+      await axios(config)
         .then(function (response) {
           console.log(JSON.stringify(response.data), "status changed");
         })
@@ -234,7 +234,7 @@ const TopBar = ({
         data: data
       };
 
-      axios(config)
+      await axios(config)
         .then(function (response) {
           console.log(response.data, "removed from queue");
         })
@@ -250,7 +250,7 @@ const TopBar = ({
         headers: {}
       };
 
-      axios(config)
+      await axios(config)
         .then(function (response) {
           console.log((response.data));
           logout()

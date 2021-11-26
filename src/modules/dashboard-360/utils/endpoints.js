@@ -13,10 +13,6 @@ export const AUTH = '/otp_auth/api'
 
 
 
-//  export const AUTH = '/otp_auth/api'
-//  export const AGENT_SERVICE = '/otp_agentservice/api'
-//  export const AMI = '/otp_ami/ami'
-
 
 export const SAVE_DISPOSITION = '/'
 
