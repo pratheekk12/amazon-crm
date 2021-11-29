@@ -206,7 +206,7 @@ const Inbound = (props) => {
                             return ele.Event = 'Call Disconnected Not Disposed'
                         } else if (ele.Event === 'LoggedOut') {
                             return ele.Event = 'Logged Out'
-                        } else if (ele.Paused === '1') {
+                        } else if (ele.Paused === '1' && ele.Event !== 'AgentConnect') {
                             return ele.Event = 'On Break'
                         } else if (ele.Event === 'LoggedIn') {
                             return ele.Event = 'Logged In'
