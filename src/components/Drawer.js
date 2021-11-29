@@ -80,7 +80,15 @@ export default function TemporaryDrawer() {
         <Link to="/cdr_Reports"><ListItemText primary={'Outbound CDR'} /></Link>
         
         {/* <ListItemText primary={'CDR Report'} /> */}
+      </ListItem><Divider />
+      <ListItem button >
+        <ListItemIcon><MailIcon /></ListItemIcon>
+        <Link to="/agentPerformance"><ListItemText primary={'Agent Performance'} /></Link>
+        
+        {/* <ListItemText primary={'CDR Report'} /> */}
       </ListItem><Divider /> 
+
+      
       </List>
     </div>
   );

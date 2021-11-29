@@ -272,7 +272,10 @@ const Inbound = (props) => {
     useEffect(() => {
 
         const interval = setInterval(async () => {
-            getAgents()
+            if(window.location.href.includes('dashboard')){
+                getAgents()
+            }
+           
 
         }, 3000);
 
