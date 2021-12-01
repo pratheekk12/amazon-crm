@@ -118,8 +118,8 @@ const Inbound = (props) => {
             flex: 1
         },
         {
-            headerName: 'Queue',
-            field: 'Queue',
+            headerName: 'Status',
+            field: 'Event',
             flex: 1
         },
         {
@@ -206,7 +206,7 @@ const Inbound = (props) => {
                             return ele.Event = 'Call Disconnected Not Disposed'
                         } else if (ele.Event === 'LoggedOut') {
                             return ele.Event = 'Logged Out'
-                        } else if (ele.Paused === '1' && ele.Event !== 'AgentConnect') {
+                        } else if (ele.Paused === '1' && ele.Event !== 'AgentConnect' && ele.Event !== 'holdRelease'&& ele.Event !== 'MusiconHold') {
                             return ele.Event = 'On Break'
                         } else if (ele.Event === 'LoggedIn') {
                             return ele.Event = 'Logged In'
@@ -220,6 +220,10 @@ const Inbound = (props) => {
                             return ele.Event = 'On Call'
                         } else if (ele.Event === 'AgentDisposed') {
                             return ele.Event = 'Free for Next Call'
+                        }else if (ele.Event === 'MusiconHold') {
+                            return ele.Event = 'On Hold'
+                        }else if (ele.Event === 'holdRelease') {
+                            return ele.Event = 'Hold Released'
                         }
                     })
 
@@ -258,7 +262,7 @@ const Inbound = (props) => {
                     })
                     setAgentsFree(agentsFree1)
                     const live = res.data.filter((ele) => {
-                        return ele.Event === 'On Call'
+                        return ele.Event === 'On Call' || ele.Event ==='On Hold' || ele.Event === 'Hold Released'
                     })
                     setLivecalls(live)
                 }
