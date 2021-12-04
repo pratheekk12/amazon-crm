@@ -65,7 +65,7 @@ export default function TemporaryDrawer() {
       </ListItem><Divider /> 
       <ListItem button >
         <ListItemIcon><MailIcon /></ListItemIcon>
-        <Link to="/cdr_Reports"><ListItemText primary={'Outbound Tickets'} /></Link>
+        <Link to="/openTickets"><ListItemText primary={'Outbound Tickets'} /></Link>
         
         {/* <ListItemText primary={'CDR Report'} /> */}
       </ListItem><Divider /> 
