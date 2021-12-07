@@ -26,7 +26,7 @@ import InteractionDate from './agentperformance_date'
 import DownloadReport from '../DownloadReport'
 import axios from 'axios';
 import moment from 'moment'
-import { DataGrid } from '@material-ui/data-grid';
+import { DataGrid,GridToolbar } from '@material-ui/data-grid';
 import ExcelReport from '../ExcelReport'
 import { AGENT_PERFORMANCE,AGENT_SERVICE } from 'src/modules/dashboard-360/utils/endpoints'
 
@@ -98,8 +98,8 @@ const AgentPerformance = (props) => {
             flex: 0.5
         },
         {
-            headerName: 'ACW',
-            field: 'ACW',
+            headerName: 'Hold Duration',
+            field: 'holdTime',
             flex: 0.5
         },
     ]
@@ -148,7 +148,11 @@ const AgentPerformance = (props) => {
             {
                 records.length > 0 ? (
                     <Grid item xs={6} sm={6} lg={12}>
-                        <DataGrid rows={records} columns={profilesColumns} pageSize={10}
+                        <DataGrid  components={{
+                                Toolbar: GridToolbar,
+                              }}
+                        rows={records} columns={profilesColumns} pageSize={10}
+                           
                             //rowsPerPageOptions={[10, 20, 50]}
                             autoHeight="true"
                             pagination />
