@@ -14,6 +14,7 @@ import manageagents from 'src/modules/telephony/views/dashboard/Auto-report/mana
 import agentPerformance from 'src/modules/telephony/views/dashboard/Auto-report/agentperformance'
 import interactionreport from 'src/modules/telephony/views/dashboard/Auto-report/interactionreport'
 import CdrReport from 'src/modules/telephony/views/dashboard/Auto-report/cdrReports.js'
+import OpenTickets from 'src/modules/telephony/views/dashboard/Auto-report/OpenTickets.js'
 
 export const dash360 = React.lazy(() =>
   import('src/modules/dashboard-360/views')
@@ -113,6 +114,11 @@ export default [
   {
     path: '/cdr_Reports',
     component: CdrReport,
+    requiresAuth: true
+  },
+  {
+    path: '/openTickets',
+    component: OpenTickets,
     requiresAuth: true
   },
 
