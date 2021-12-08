@@ -88,6 +88,11 @@ const Inbound = (props) => {
     ]
     const agentStatusColumn = [
         {
+            headerName: 'SIP',
+            field: 'Location',
+            flex: 1
+        },
+        {
             headerName: 'Name',
             field: 'name',
             flex: 1

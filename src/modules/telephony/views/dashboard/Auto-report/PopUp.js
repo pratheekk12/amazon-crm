@@ -60,7 +60,7 @@ const Popup = (props) => {
         if (show && record.id.length > 9) {
             setPhone(record.id)
         } else {
-            setSip(record.id)
+            setSip(record.Location)
         }
 
         setProcessLocation(record.ProcessLocation)
