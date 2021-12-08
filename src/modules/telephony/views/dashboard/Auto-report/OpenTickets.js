@@ -142,7 +142,7 @@ const OpenTickets = (props) => {
         <br />
         <Grid container spacing={3} direction="row">
             <Grid item xs={6} sm={6} lg={5}></Grid>
-            <Grid item xs={6} sm={6} lg={4}><h3>Interaction Performance Report</h3></Grid>
+            <Grid item xs={6} sm={6} lg={4}><h3>Open Tickets</h3></Grid>
             <Grid item xs={6} sm={6} lg={3}></Grid>
         </Grid>
         <Grid container spacing={3} direction="row">
