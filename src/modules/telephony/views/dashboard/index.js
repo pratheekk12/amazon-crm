@@ -251,8 +251,8 @@ const Inbound = (props) => {
                             ele.Mduration = value
                         )
                     })
-
-                    setAgents(res.data)
+                   
+                    
                     const idle1 = res.data.filter((ele) => {
                         
                         return ele.Event === 'Call Disconnected Not Disposed'
@@ -278,6 +278,74 @@ const Inbound = (props) => {
             })
     }
 
+    const getAgents1 = () => {
+        axios.get(`${AGENT_SERVICE}/agents`)
+            .then((res) => {
+                console.log(res.data)
+                if (res.data.length > 0) {
+                    let i=0;
+                    res.data.map((ele)=>{
+                        i=i+1;
+                        return ele.id =i
+                    })
+                    res.data.map((ele) => {
+                        if (ele.Event === 'AgentComplete') {
+                            return ele.Event = 'Call Disconnected Not Disposed'
+                        } else if (ele.Event === 'LoggedOut') {
+                            return ele.Event = 'Logged Out'
+                        } else if (ele.Paused === '1' && ele.Event !== 'AgentConnect' && ele.Event !== 'holdRelease'&& ele.Event !== 'MusiconHold') {
+                            return ele.Event = 'On Break'
+                        } else if (ele.Event === 'LoggedIn') {
+                            return ele.Event = 'Logged In'
+                        } else if (ele.Event === 'BREAKOUT') {
+                            return ele.Event = 'Free for Next Call'
+                        } else if (ele.Event === 'AgentCalled') {
+                            return ele.Event = 'Ringing'
+                        } else if (ele.Event === 'AgentRingNoAnswer') {
+                            return ele.Event = 'Missed Last Call, Ready for Next Call'
+                        } else if (ele.Event === 'AgentConnect') {
+                            return ele.Event = 'On Call'
+                        } else if (ele.Event === 'AgentDisposed') {
+                            return ele.Event = 'Free for Next Call'
+                        }else if (ele.Event === 'MusiconHold') {
+                            return ele.Event = 'On Hold'
+                        }else if (ele.Event === 'holdRelease') {
+                            return ele.Event = 'Hold Released'
+                        }
+                    })
+
+
+                    
+
+
+                    let value;
+                    res.data.map((ele) => {
+
+                        value = new Date(ele.updatedAt).toUTCString()
+                        //console.log(value)
+                        // value = new date() - new Date(value)
+                        value = new Date() - new Date(value)
+                        console.log(value)
+                        value = new Date(value).toUTCString().slice(17, 25)
+                        //value = moment(value).format().slice(11, 18)
+                        //value = moment(value).format()
+                        return (
+                            ele.Mduration = value
+                        )
+                    })
+                   
+                    setAgents(res.data)
+                    
+                    
+                  
+                }
+
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    }
+
     useEffect(() => {
 
         const interval = setInterval(async () => {
@@ -287,9 +355,13 @@ const Inbound = (props) => {
            
 
         }, 3000);
-
+      
 
     }, [])
+
+    useEffect(()=>{
+        getAgents1()
+    },[])
 
     console.log(agents, "agents")
     console.log(liveCalls,"live calls")

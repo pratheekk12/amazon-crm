@@ -23,7 +23,7 @@ import {
     DialogTitle
 } from '@material-ui/core';
 import axios from 'axios'
-import { AGENT_PERFORMANCE } from 'src/modules/dashboard-360/utils/endpoints'
+import { AGENT_PERFORMANCE,AGENT_SERVICE } from 'src/modules/dashboard-360/utils/endpoints'
 
 
 const Popup = (props) => {
@@ -54,20 +54,23 @@ const Popup = (props) => {
     //console.log(record)
 
     useEffect(() => {
-        setname(record.name)
-        setProcessType(record.ProcessType)
-        setProcessname(record.ProcessName)
-        if (show && record.id.length > 9) {
-            setPhone(record.id)
-        } else {
-            setSip(record.Location)
+        if(record){
+            setname(record.name)
+            setProcessType(record.ProcessType)
+            setProcessname(record.ProcessName)
+            if (show && record.id.length > 9) {
+                setPhone(record.id)
+            } else {
+                setSip(record.Location)
+            }
+    
+            setProcessLocation(record.ProcessLocation)
+            setQueue(record.Queue)
+            setEmail(record.UserName)
+            setProcessGroup(record.ProcessGroup)
         }
-
-        setProcessLocation(record.ProcessLocation)
-        setQueue(record.Queue)
-        setEmail(record.UserName)
-        setProcessGroup(record.ProcessGroup)
-    }, [props])
+      
+    }, [record])
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -113,7 +116,7 @@ const Popup = (props) => {
             }
             console.log(data)
 
-            axios.put(`${AGENT_PERFORMANCE}/agents/${record._id}`, data)
+            axios.put(`${AGENT_SERVICE}/agents/${record._id}`, data)
                 .then((res) => {
                     // console.log(res.data)
                     alert(`Agent Updated Successfully`)
@@ -166,7 +169,7 @@ const Popup = (props) => {
             }
             console.log("i am here")
             console.log(data)
-            axios.put(`${AGENT_PERFORMANCE}/agents/${record._id}`, data)
+            axios.put(`${AGENT_SERVICE}/agents/${record._id}`, data)
                 .then((res) => {
                     // console.log(res.data)
                     alert(`Agent updated Successfully`)
