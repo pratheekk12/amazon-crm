@@ -5,8 +5,7 @@
   "version": "1.0.0",
   "private": false,
   "scripts": {
-    "start": "PORT=53004 react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts build",
+    "start": "PORT=53004 react-scripts start",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

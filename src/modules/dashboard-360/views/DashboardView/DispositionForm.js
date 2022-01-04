@@ -429,6 +429,16 @@ const DispositionForm = ({ visibility, customer,getCustomerDetails,setCurrentrec
                 )}
                 
                      <Grid item container justify="center" alignContent="center">
+                     <Button
+                         type="submit"
+                         disabled={visibility}
+                         color="primary"
+                         variant="contained"
+                         size="large"
+     
+                       >
+                         Submit
+                       </Button>
                        {
                          localStorage.getItem('callStatus') === 'AgentComplete' &&  <Button
                          type="submit"
