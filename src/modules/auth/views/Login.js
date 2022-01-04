@@ -60,7 +60,7 @@ const useStyles = makeStyles(theme => ({
     height: '100vh'
   },
   image: {
-    backgroundImage: 'url(/static/otp.png)',
+    backgroundImage: 'url(/static/amazon1.png)',
     backgroundRepeat: 'no-repeat',
     backgroundColor:
       theme.palette.type === 'light'
@@ -489,7 +489,7 @@ function Login({ setLoggedInMain, setAccountTypeMain, setUserDetailsMain }) {
               }
 
               <Typography align="center">
-                Otp Express
+                Amazon
               </Typography>
 
             </Box>

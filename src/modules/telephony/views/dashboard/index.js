@@ -3,6 +3,8 @@ import axios from 'axios'
 import { DataGrid } from '@material-ui/data-grid';
 import Dialog from './Auto-report/dialog'
 import AddIcon from '@material-ui/icons/Add';
+
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import {
     Avatar,
     Grid,
@@ -35,7 +37,7 @@ import moment from 'moment';
 import { propTypes } from 'react-bootstrap/esm/Image';
 import Dialog1 from './Auto-report/updatedialog'
 import { date } from 'yup';
-import { AGENT_PERFORMANCE, AGENT_SERVICE } from 'src/modules/dashboard-360/utils/endpoints'
+import { AGENT_PERFORMANCE, AGENT_SERVICE, AUTH } from 'src/modules/dashboard-360/utils/endpoints'
 import Popup from './Auto-report/PopUp';
 
 
@@ -91,6 +93,7 @@ const Inbound = (props) => {
             headerName: 'SIP',
             field: 'Location',
             flex: 1
+
         },
         {
             headerName: 'Name',
@@ -107,7 +110,30 @@ const Inbound = (props) => {
             headerName: 'Duration',
             field: 'Mduration',
             flex: 1
-        }
+        },
+
+        {
+            headerName: 'Actions',
+            field: '',
+
+            renderCell: rowData => (
+                <>
+                   <div>
+                        <Tooltip title="Delete Agent">
+                        
+                               
+                            <Button variant="contained" onClick={() => handleremoveagent(rowData.row._id)} ><DeleteForeverIcon /></Button>
+                           
+                        </Tooltip>
+                      </div>
+                    
+
+                </>
+            ),
+            flex: 1.1
+        },
+
+
     ]
     const liveCallsColumn = [
 
@@ -194,6 +220,22 @@ const Inbound = (props) => {
         // console.log(id)
 
         // setOpen(true)
+    }
+
+    const handleremoveagent =(idv,e)=>{
+        const data = {
+            "id":idv
+        }
+     
+        
+       //alert(id)
+        axios.delete(`${AUTH}/removeuser`,data)
+            .then((res)=>{
+                alert("agent deleted succesfully")
+            })
+            .catch((err)=>{
+                alert("error in deleting user")
+            })
     }
 
     const getAgents = () => {
@@ -409,7 +451,7 @@ const Inbound = (props) => {
                                 <Grid item xs={6} sm={6} lg={5}> <b>Break Details</b></Grid>
                                 <Grid item xs={6} sm={6} lg={1}></Grid>
                                 <Grid item xs={6} sm={6} lg={12}>
-                                    <DataGrid rows={breakdetails} columns={agentStatusColumn} pageSize={3}
+                                    <DataGrid rows={breakdetails} columns={liveCallsColumn} pageSize={3}
                                         //rowsPerPageOptions={[5, 20, 50]}
                                         autoHeight="true"
                                         pagination onRowClick={showProfile} />
